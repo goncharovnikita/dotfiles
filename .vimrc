@@ -167,6 +167,7 @@ let g:user_emmet_settings = {
 
 " Go setup
 autocmd FileType go map <leader>gi :GoImports<CR>
+autocmd FileType go map <c-]> <Plug>(go-def)<cr>
 
 " Bufexplorer
 nnoremap <leader>o :BufExplorer<CR>
