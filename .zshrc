@@ -52,7 +52,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+ZSH_CUSTOM=~/self/dotfiles/.oh-my-zsh
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -68,6 +68,8 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 # User configuration
+hash -d msg=~/work/messenger/chat
+hash -d dtf=~/self/dotfiles
 
 # TMUX
 ZSH_TMUX_FIXTERM=true

@@ -1,11 +1,45 @@
 set shell=/bin/bash
-execute pathogen#infect()
+call plug#begin('~/self/dotfiles/.vim/plugged')
+
+Plug 'mileszs/ack.vim'
+
+Plug 'preservim/nerdtree'
+
+Plug 'jlanzarotta/bufexplorer'
+
+Plug 'morhetz/gruvbox'
+
+Plug 'dense-analysis/ale'
+
+Plug 'kien/ctrlp.vim'
+
+Plug 'mattn/emmet-vim'
+
+Plug 'vim-scripts/mru.vim'
+
+Plug 'tpope/vim-commentary'
+
+Plug 'tpope/vim-fugitive'
+
+Plug 'tpope/vim-sensible'
+
+Plug 'tpope/vim-surround'
+
+Plug 'nathanaelkane/vim-indent-guides'
+
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+
+Plug 'jiangmiao/auto-pairs'
+
+Plug 'junegunn/gv.vim'
+
+call plug#end()
 
 let mapleader = ","
 set number
 set relativenumber
 syntax enable
-set guifont=RobotoMono\ Nerd\ Font:h14
+set guifont=JetBrainsMono\ Nerd\ Font:h14
 filetype plugin indent on
 set guicursor+=a:blinkon0
 set scrolloff=1
@@ -41,6 +75,9 @@ nnoremap <c-k> <c-w>k
 
 " Switch CWD to the directory of the open buffer
 map <leader>cd :cd %:p:h<cr>:pwd<cr>
+
+" Off syntax on large files
+autocmd BufWinEnter * if line2byte(line("$") + 1) > 1000000 | set ft=none | endif
 
 " Set to auto read when a file is changed from the outside
 set autoread
@@ -85,7 +122,16 @@ try
 catch
 endtry
 
+" ===== WILDIGNORE ===== "
 set wildignore+=*/node_modules/*,/\.git/*
+set wildignore+=*/\.build/*
+set wildignore+=/\.build/*
+set wildignore+=/bundles-desktop/*
+set wildignore+=/bundles-touch-pad/*
+set wildignore+=/bundles-touch-phone/*
+set wildignore+=/pages-desktop/*
+set wildignore+=/pages-touch-pad/*
+set wildignore+=/pages-touch-phone/*
 
 nnoremap <Space> /
 
@@ -118,16 +164,19 @@ nnoremap <leader>f :MRU<cr>
 
 " CtrlP
 let g:ctrlp_max_height = 20
+let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|bundles-desktop|bundles-touch-pad|bundles-touch-phone|pages-desktop|pages-touch-pad|pages-touch-phone)|(\.(swp|ico|git|svn|build))$'
 
-" " Ale
-let g:py_linters = ['pylint']
+let g:py_linters = []
 let g:ale_linters = {
     \ "python": py_linters,
     \ }
 let g:js_fixers = ['eslint']
 let g:ale_fixers = {
     \ "javascript": js_fixers,
+    \ "javascriptreact": js_fixers,
     \ "typescript": js_fixers,
+    \ "typescript.tsx": js_fixers,
+    \ "typescriptreact": js_fixers,
     \ }
 let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
@@ -137,9 +186,13 @@ let g:ale_set_signs = 0
 highlight ALEErrorSign ctermbg=NONE ctermfg=red
 highlight ALEWarningSign ctermbg=NONE ctermfg=yellow
 
+nnoremap <silent> <leader>afx :! eslint --fix %<CR>
 nnoremap <silent> ]g :ALENext<CR>
 nnoremap <silent> [g :ALEPrevious<CR>
+nnoremap <silent> <leader>lfx :ALEFix<CR>
+nnoremap <silent> <leader>lfp :Prettier<CR> :ALEFix<CR>
 
+autocmd FileType typescriptreact set ft=typescript.tsx
 autocmd FileType javascript,javascriptreact,typescript,javascript.jsx,typescript.tsx map <c-]> :ALEGoToDefinition<cr>
 
 " integrate Ale with statusline
@@ -185,16 +238,6 @@ let g:ctrlp_show_hidden = 1
 " Goyo
 nnoremap <leader>z :Goyo<CR>
 
-" Sleeper
-let g:sleeper_point = '<++>'
-function! JumpToPrevSleeperPoint() 
-    let @/ = g:sleeper_point
-    normal! N<CR>
-endfunction
-
-
-
-
 nnoremap <leader>s[ :call JumpToPrevSleeperPoint()<CR>
 
 " Fugitive
@@ -203,6 +246,6 @@ nnoremap <leader>gps :Gpush<CR>
 nnoremap <leader>gss :Gstatus<CR>
 
 " Tsuquyomi
-let g:tsuquyomi_disable_default_mappings = 1
-let g:tsuquyomi_single_quote_import = 1
-let g:tsuquyomi_disable_quickfix = 1
+" let g:tsuquyomi_disable_default_mappings = 1
+" let g:tsuquyomi_single_quote_import = 1
+" let g:tsuquyomi_disable_quickfix = 1

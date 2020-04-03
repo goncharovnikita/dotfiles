@@ -1,0 +1,10 @@
+version: '3'
+services:
+    gen:
+        image: alpine-curl
+        command: make genweather
+        volumes:
+        - ./Makefile:/Makefile
+        - ./weathergen.sh:/weathergen.sh
+        - ./weathercron.sh:/weathercron.sh
+        - ./weather.txt:/root/self/dotfiles/assets/dynamic/weather/weather.txt
