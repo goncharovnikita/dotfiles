@@ -33,6 +33,11 @@ Plug 'jiangmiao/auto-pairs'
 
 Plug 'junegunn/gv.vim'
 
+" JS/JSX
+Plug 'yuezk/vim-js'
+
+Plug 'maxmellon/vim-jsx-pretty'
+
 call plug#end()
 
 let mapleader = ","
@@ -167,11 +172,15 @@ let g:ctrlp_max_height = 20
 let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|bundles-desktop|bundles-touch-pad|bundles-touch-phone|pages-desktop|pages-touch-pad|pages-touch-phone)|(\.(swp|ico|git|svn|build))$'
 
 let g:py_linters = []
+let g:hs_linters = []
 let g:ale_linters = {
     \ "python": py_linters,
+    \ "haskell": hs_linters,
     \ }
 let g:js_fixers = ['eslint']
+let g:hs_fixers = []
 let g:ale_fixers = {
+    \ "haskell": hs_fixers,
     \ "javascript": js_fixers,
     \ "javascriptreact": js_fixers,
     \ "typescript": js_fixers,
