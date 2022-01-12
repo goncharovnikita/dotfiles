@@ -9,6 +9,8 @@ I couldn't find how to use config from `.config` folder in vim by tweaking env v
 source ~/.config/vim/.vimrc
 ```
 
+After first start, install plugins using `:PlugInstall`
+
 # Tmux
 
 Modify `~/.config/tmux/tmux.conf.local`
