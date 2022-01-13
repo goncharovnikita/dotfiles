@@ -129,22 +129,9 @@ try
 catch
 endtry
 
-" ===== WILDIGNORE ===== "
-set wildignore+=*/node_modules/*,/\.git/*
-set wildignore+=*/\.build/*
-set wildignore+=/\.build/*
-set wildignore+=/bundles-desktop/*
-set wildignore+=/bundles-touch-pad/*
-set wildignore+=/bundles-touch-phone/*
-set wildignore+=/pages-desktop/*
-set wildignore+=/pages-touch-pad/*
-set wildignore+=/pages-touch-phone/*
-
 nnoremap <Space> /
 
 nnoremap <leader>tn :tabnew<CR>
-if has('python3')
-endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Files, backups and undo
@@ -171,7 +158,6 @@ nnoremap <leader>f :MRU<cr>
 
 " CtrlP
 let g:ctrlp_max_height = 20
-let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|bundles-desktop|bundles-touch-pad|bundles-touch-phone|pages-desktop|pages-touch-pad|pages-touch-phone)|(\.(swp|ico|git|svn|build))$'
 
 let g:py_linters = []
 let g:hs_linters = []
