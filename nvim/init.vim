@@ -1,13 +1,5 @@
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'mileszs/ack.vim'
-
-Plug 'preservim/nerdtree'
-
-Plug 'jlanzarotta/bufexplorer'
-
-Plug 'vim-scripts/mru.vim'
-
 Plug 'tpope/vim-commentary'
 
 Plug 'tpope/vim-fugitive'
@@ -18,26 +10,43 @@ Plug 'tpope/vim-surround'
 
 Plug 'nathanaelkane/vim-indent-guides'
 
-Plug 'junegunn/gv.vim'
-
-" JS/JSX
-Plug 'yuezk/vim-js'
-
-Plug 'maxmellon/vim-jsx-pretty'
-
 " Colorschemes
 Plug 'dracula/vim'
+Plug 'Mofiqul/vscode.nvim'
 
 " Navigation
 Plug 'phaazon/hop.nvim'
 
-" Modeline
+" Statusline
 Plug 'nvim-lualine/lualine.nvim'
-"" Modeline icons
-Plug 'kyazdani42/nvim-web-devicons'
 
 " Treesitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" Telescope
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+
+" Icons
+Plug 'kyazdani42/nvim-web-devicons'
+
+" Tabs
+Plug 'romgrk/barbar.nvim'
+
+" Mini
+Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
+
+" Tree
+Plug 'kyazdani42/nvim-tree.lua'
+
+" Sniprun
+Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
+
+" Go
+Plug 'ray-x/go.nvim'
+
+" LSP
+Plug 'neovim/nvim-lspconfig'
 
 call plug#end()
 
@@ -46,11 +55,9 @@ set nocompatible
 set number
 set relativenumber
 syntax enable
-set guifont=JetBrainsMono\ Nerd\ Font:h14
 filetype plugin indent on
 set guicursor+=a:blinkon0
 set scrolloff=1
-set clipboard=unnamedplus   " using system clipboard
 
 " GUI options
 set guioptions-=r
@@ -62,17 +69,16 @@ set statusline+=\ %m " is modified
 set statusline+=%=  " start from right
 
 " Theme
-colorscheme dracula
-set background=dark
+lua <<EOF
+vim.g.vscode_style = "light"
+vim.g.vscode_italic_comment = 1
+vim.cmd[[colorscheme vscode]]
+EOF
 let g:deus_termcolors=256
-" hi Normal ctermbg=NONE guibg=NONE
 
 " Set extra options when running in GUI mode
 if has("gui_running")
-    "set guioptions-=T
-    "set guioptions-=e
     set t_Co=256
-    "set guitablabel=%M\ %t
 endif
 
 " Buffer movement
@@ -105,7 +111,6 @@ set mat=2
 " Use spaces instead of tabs
 set expandtab
 
-" Be smart when using tabs ;)
 set smarttab
 
 " 1 tab == 4 spaces
@@ -145,42 +150,8 @@ set noswapfile
 """"PLUGINS""""
 """"""""""""""""
 
-" NerdTree
-nnoremap <leader>nn :NERDTreeToggle<cr>
-nnoremap <leader>nb :NERDTreeFromBookmark<Space>
-nnoremap <leader>nf :NERDTreeFind<cr>
-let g:NERDTreeWinPos = "right"
-
 " Indent guides
 let g:indent_guides_enable_on_vim_startup = 0
-
-" MRU
-nnoremap <leader>f :MRU<cr>
-
-" CtrlP
-let g:ctrlp_max_height = 20
-
-" Go setup
-autocmd FileType go map <leader>gi :GoImports<CR>
-autocmd FileType go map <c-]> <Plug>(go-def)<cr>
-
-" Bufexplorer
-nnoremap <leader>o :BufExplorer<CR>
-
-" Ack
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
-nnoremap <leader>F :Ack<Space>
-
-" CtrlP
-let g:ctrlp_map = '<leader>j'
-let g:ctrlp_show_hidden = 1
-
-" Goyo
-nnoremap <leader>z :Goyo<CR>
-
-nnoremap <leader>s[ :call JumpToPrevSleeperPoint()<CR>
 
 " Fugitive
 nnoremap <leader>gpl :Gpull<CR>
@@ -191,15 +162,9 @@ nnoremap <leader>gss :Gstatus<CR>
 lua require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
 nnoremap <c-h> :HopWord<CR>
 
-" WebDevicons
-lua require('nvim-web-devicons').setup()
-
-" Lualine
-lua require('lualine').setup()
-
 " Treesitter
 lua <<EOF
-require'nvim-treesitter.configs'.setup {
+require('nvim-treesitter.configs').setup({
   ensure_installed = "maintained",
 
   sync_install = false,
@@ -214,6 +179,88 @@ require'nvim-treesitter.configs'.setup {
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
-}
+})
+EOF
+
+" Telescope
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+
+" Lualine
+lua require('lualine').setup()
+
+" Mini
+lua require('mini.starter').setup()
+lua require('mini.trailspace').setup()
+
+" Tree
+nnoremap <C-n> :NvimTreeToggle<CR>
+nnoremap <leader>r :NvimTreeRefresh<CR>
+nnoremap <leader>n :NvimTreeFindFile<CR>
+
+lua require('nvim-tree').setup()
+
+" Go
+lua require('go').setup()
+lua <<EOF
+-- Run gofmt + goimport on save
+vim.api.nvim_exec([[ autocmd BufWritePre *.go :silent! lua require('go.format').goimport() ]], false)
+
+-- lsp
+require'lspconfig'.gopls.setup{}
+
+EOF
+
+" LSP
+lua << EOF
+local nvim_lsp = require('lspconfig')
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  -- Enable completion triggered by <c-x><c-o>
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
+  buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+end
+
+-- Use a loop to conveniently call 'setup' on multiple servers and
+-- map buffer local keybindings when the language server attaches
+local servers = { 'gopls' }
+for _, lsp in ipairs(servers) do
+  nvim_lsp[lsp].setup {
+    on_attach = on_attach,
+    flags = {
+      debounce_text_changes = 150,
+    }
+  }
+end
 EOF
 
