@@ -70,7 +70,7 @@ set statusline+=%=  " start from right
 
 " Theme
 lua <<EOF
-vim.g.vscode_style = "light"
+vim.g.vscode_style = "dark"
 vim.g.vscode_italic_comment = 1
 vim.cmd[[colorscheme vscode]]
 EOF
@@ -80,12 +80,6 @@ let g:deus_termcolors=256
 if has("gui_running")
     set t_Co=256
 endif
-
-" Buffer movement
-nnoremap <c-l> <c-w>l
-nnoremap <c-h> <c-w>h
-nnoremap <c-j> <c-w>j
-nnoremap <c-k> <c-w>k
 
 " Switch CWD to the directory of the open buffer
 map <leader>cd :cd %:p:h<cr>:pwd<cr>
@@ -154,9 +148,9 @@ set noswapfile
 let g:indent_guides_enable_on_vim_startup = 0
 
 " Fugitive
-nnoremap <leader>gpl :Gpull<CR>
-nnoremap <leader>gps :Gpush<CR>
-nnoremap <leader>gss :Gstatus<CR>
+nnoremap <leader>gpl :Git pull<CR>
+nnoremap <leader>gps :Git push<CR>
+nnoremap <leader>gss :Git<CR>
 
 " Hop
 lua require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
@@ -262,5 +256,62 @@ for _, lsp in ipairs(servers) do
     }
   }
 end
+EOF
+
+" Barbar
+lua <<EOF
+vim.g.bufferline = {
+  -- Enable/disable animations
+  animation = false,
+
+  -- Enable/disable auto-hiding the tab bar when there is a single buffer
+  auto_hide = true,
+
+  -- Enable/disable current/total tabpages indicator (top right corner)
+  tabpages = true,
+
+  -- Enable/disable close button
+  closable = false,
+
+  -- Enables/disable clickable tabs
+  --  - left-click: go to buffer
+  --  - middle-click: delete buffer
+  clickable = false,
+
+  icons = true,
+
+  -- Configure icons on the bufferline.
+  icon_separator_active = '▎',
+  icon_separator_inactive = '▎',
+  icon_close_tab = '',
+  icon_close_tab_modified = '●',
+  icon_pinned = '車',
+
+  -- If true, new buffers will be inserted at the start/end of the list.
+  -- Default is to insert after current buffer.
+  insert_at_end = false,
+  insert_at_start = false,
+
+  -- Sets the maximum padding width with which to surround each tab
+  maximum_padding = 1,
+
+  -- Sets the maximum buffer name length.
+  maximum_length = 30,
+
+  -- If set, the letters for each buffer in buffer-pick mode will be
+  -- assigned based on their name. Otherwise or in case all letters are
+  -- already assigned, the behavior is to assign letters in order of
+  -- usability (see order below)
+  semantic_letters = true,
+
+  -- New buffer letters are assigned in this order. This order is
+  -- optimal for the qwerty keyboard layout but might need adjustement
+  -- for other layouts.
+  letters = 'asdfjkl;ghnmxcvbziowerutyqpASDFJKLGHNMXCVBZIOWERUTYQP',
+
+  -- Sets the name of unnamed buffers. By default format is "[Buffer X]"
+  -- where X is the buffer number. But only a static string is accepted here.
+  no_name_title = nil,
+}
 EOF
 
