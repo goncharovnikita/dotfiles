@@ -1,10 +1,13 @@
-local nvim_lsp = require('lspconfig')
+local nvim_lsp = require("lspconfig")
+local utils = require("config.utils")
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
+local runtime_path = vim.split(package.path, ";")
 
 vim.opt.signcolumn = "yes"
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
-local on_attach = function(client, bufnr)
+local servers = { "gopls", "pylsp" }
+local capabilities = cmp_nvim_lsp.update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local lsp_on_attach = function(_, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
   -- Mappings.
@@ -19,29 +22,62 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-
+  buf_set_keymap('n', '<leader>rr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<leader>bff', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
 
--- Use a loop to conveniently call 'setup' on multiple servers and
--- map buffer local keybindings when the language server attaches
--- local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
-local servers = { 'gopls' }
-for _, lsp in ipairs(servers) do
-  nvim_lsp[lsp].setup {
-    on_attach = on_attach,
-    -- capabilities = capabilities,
-    flags = {
-      debounce_text_changes = 500,
-    }
-  }
-end
-
-require('lspconfig').sqls.setup{
-    on_attach = function(client, bufnr)
-        require('sqls').on_attach(client, bufnr)
-        local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-        local opts = { noremap=true, silent=true }
-
-        buf_set_keymap('v', 'e', ':SqlsExecuteQuery<CR>', opts)
-    end
+local lsp_flags = {
+  debounce_text_changes = 500,
 }
+
+for _, lsp in ipairs(servers) do
+	nvim_lsp[lsp].setup({
+		on_attach = lsp_on_attach,
+		flags = lsp_flags,
+        capabilities = capabilities,
+	})
+end
+
+nvim_lsp.sqls.setup({
+	on_attach = function(client, bufnr)
+		require("sqls").on_attach(client, bufnr)
+		local function buf_set_keymap(...)
+			vim.api.nvim_buf_set_keymap(bufnr, ...)
+		end
+		local opts = { noremap = true, silent = true }
+
+		buf_set_keymap("v", "e", ":SqlsExecuteQuery<CR>", opts)
+	end,
+})
+
+table.insert(runtime_path, "lua/?.lua")
+table.insert(runtime_path, "lua/?/init.lua")
+
+nvim_lsp.sumneko_lua.setup({
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+    capabilities = capabilities,
+	settings = {
+		Lua = {
+			runtime = {
+				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+				version = "LuaJIT",
+				-- Setup your lua path
+				path = runtime_path,
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = { "vim" },
+			},
+			workspace = {
+				-- Make the server aware of Neovim runtime files
+				library = vim.api.nvim_get_runtime_file("", true),
+			},
+			-- Do not send telemetry data containing a randomized but unique identifier
+			telemetry = {
+				enable = false,
+			},
+		},
+	},
+})
+

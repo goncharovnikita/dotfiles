@@ -4,10 +4,9 @@ local fn = vim.fn
 local cmd = vim.cmd
 
 -- Boostrap Packer
-local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-local packer_bootstrap
+local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 if fn.empty(fn.glob(install_path)) > 0 then
-  packer_bootstrap = fn.system({'git', 'clone','https://github.com/wbthomason/packer.nvim', install_path})
+	fn.system({ "git", "clone", "https://github.com/wbthomason/packer.nvim", install_path })
 end
 
 -- Rerun PackerCompile everytime pluggins.lua is updated
@@ -18,89 +17,102 @@ cmd([[
   augroup end
 ]])
 
-cmd [[packadd packer.nvim]]
+cmd([[packadd packer.nvim]])
 
-return require('packer').startup(function()
-    use 'wbthomason/packer.nvim'
+local packer = require('packer')
+local use = packer.use
 
-    use 'tpope/vim-commentary'
+return packer.startup(function()
+	use("wbthomason/packer.nvim")
 
-    use 'tpope/vim-sensible'
+	use("tpope/vim-commentary")
 
-    use 'tpope/vim-surround'
+	use("tpope/vim-sensible")
 
-    use 'nathanaelkane/vim-indent-guides'
+	use("tpope/vim-surround")
 
-    -- Colorschemes
-    use { 'monsonjeremy/onedark.nvim', config = [[require('config.colorscheme')]] }
+	use("nathanaelkane/vim-indent-guides")
 
-    -- Navigation
-    use { 'phaazon/hop.nvim', config = [[require('config.hop')]] }
+	-- Colorschemes
+	use({ "monsonjeremy/onedark.nvim", config = [[require('config.colorscheme')]] })
 
-    -- Statusline
-    use { 'nvim-lualine/lualine.nvim', config = [[require('config.lualine')]] }
+	use({ "Mofiqul/vscode.nvim", config = [[require('config.colorscheme')]] })
 
-    -- Treesitter
-    use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+	-- Navigation
+	use({ "phaazon/hop.nvim", config = [[require('config.hop')]] })
 
-    -- Telescope
-    use {
-          {
-          'nvim-telescope/telescope.nvim',
-          requires = {
-            'nvim-lua/popup.nvim',
-            'nvim-lua/plenary.nvim',
-            'telescope-frecency.nvim',
-            'telescope-fzf-native.nvim',
-          },
-          wants = {
-            'popup.nvim',
-            'plenary.nvim',
-            'telescope-frecency.nvim',
-            'telescope-fzf-native.nvim',
-          },
-          setup = [[require('config.telescope_setup')]],
-          config = [[require('config.telescope')]],
-          cmd = 'Telescope',
-          module = 'telescope',
-        },
-        {
-          'nvim-telescope/telescope-frecency.nvim',
-          after = 'telescope.nvim',
-          requires = 'tami5/sqlite.lua',
-        },
-        {
-          'nvim-telescope/telescope-fzf-native.nvim',
-          run = 'make',
-        },
-    }
+	-- Treesitter
+	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
+    use 'nvim-treesitter/nvim-treesitter-textobjects'
 
-    -- Icons
-    use 'kyazdani42/nvim-web-devicons'
+	-- Telescope
+	use({
+		{
+			"nvim-telescope/telescope.nvim",
+			requires = {
+				"nvim-lua/popup.nvim",
+				"nvim-lua/plenary.nvim",
+				"telescope-frecency.nvim",
+				"telescope-fzf-native.nvim",
+			},
+			wants = {
+				"popup.nvim",
+				"plenary.nvim",
+				"telescope-frecency.nvim",
+				"telescope-fzf-native.nvim",
+			},
+			setup = [[require('config.telescope_setup')]],
+			config = [[require('config.telescope')]],
+			cmd = "Telescope",
+			module = "telescope",
+		},
+		{
+			"nvim-telescope/telescope-frecency.nvim",
+			after = "telescope.nvim",
+			requires = "tami5/sqlite.lua",
+		},
+		{
+			"nvim-telescope/telescope-fzf-native.nvim",
+			run = "make",
+		},
+	})
 
-    -- Mini
-    use { 'echasnovski/mini.nvim', branch = 'stable', config = [[require('config.mini')]] }
+	-- Icons
+	use("kyazdani42/nvim-web-devicons")
 
-    -- Tree
-    use { 'kyazdani42/nvim-tree.lua', disable = true, config = [[require('config.nvim-tree')]] }
-    use { 'ms-jpq/chadtree', disable = true, branch = 'chad', run = 'python3 -m chadtree deps' }
-    use { 'preservim/nerdtree', config = [[require('config.nerdtree')]] }
+	-- Tree
+	use({ "preservim/nerdtree", config = [[require('config.nerdtree')]] })
 
-    -- Sniprun
-    use { 'michaelb/sniprun', run = 'bash install.sh' }
+	-- Sniprun
+	use({ "michaelb/sniprun", run = "bash install.sh" })
 
-    -- Go
-    use { 'ray-x/go.nvim', opt = true, ft = { 'go' }, config = [[require('config.go')]] }
+	-- Go
+	use({ "ray-x/go.nvim", ft = { "go" }, config = [[require('config.go')]] })
 
-    -- LSP
-    use { 'neovim/nvim-lspconfig', opt = true, ft = { 'go' }, config = [[require('config.lsp')]] }
+	-- Sql
+	use({ "nanotee/sqls.nvim", opt = true, ft = { "sql" } })
 
-    -- Sql
-    use { 'nanotee/sqls.nvim', opt = true, ft = { 'sql' } }
+	-- Project
+	use({ "ahmedkhalf/project.nvim", config = [[require('config.project')]] })
 
-    -- Project
-    use { 'ahmedkhalf/project.nvim', config = [[require('config.project')]] }
+	-- Linter
+	use({ "mfussenegger/nvim-lint", opt = true, ft = { "go" } })
 
-    -- Linter
-    use { 'mfussenegger/nvim-lint', opt = true, ft = { 'go' } }
+	-- Git
+	use({ "tpope/vim-fugitive", config = [[require('config.git')]] })
+
+	-- CMP
+	use({ "L3MON4D3/LuaSnip" }) -- Snippets plugin
+	use({ "hrsh7th/nvim-cmp" }) -- Autocompletion plugin
+    use({ "hrsh7th/cmp-nvim-lsp" })
+    use({ "hrsh7th/cmp-nvim-lsp-signature-help" })
+    use({ "saadparwaiz1/cmp_luasnip", config = [[require('config.cmp')]] })
+
+	-- LSP
+	use({
+		"neovim/nvim-lspconfig",
+		config = [[require('config.lsp')]],
+	})
+
 end)
+

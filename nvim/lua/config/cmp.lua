@@ -1,67 +1,59 @@
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
+-- Setup nvim-cmp.
+local cmp = require("cmp")
+local luasnip = require("luasnip")
 
-local function check_backspace()
-  local col = vim.fn.col '.' - 1
-  return col == 0 or vim.fn.getline('.'):sub(col, col):match '%s' ~= nil
-end
+cmp.setup({
+	snippet = {
+		-- REQUIRED - you must specify a snippet engine
+		expand = function(args)
+			--vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+			luasnip.lsp_expand(args.body) -- For `luasnip` users.
+			-- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+			-- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+		end,
+	},
+	mapping = {
+		["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
+		["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(4), { "i", "c" }),
+		["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+		["<C-y>"] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+		["<C-e>"] = cmp.mapping({
+			i = cmp.mapping.abort(),
+			c = cmp.mapping.close(),
+		}),
+		["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+	},
+	sources = cmp.config.sources({
+		{ name = "nvim_lsp" },
+		{ name = "nvim_lsp_signature_help" },
+		{ name = 'luasnip' }, -- For luasnip users.
+	}, {
+		{ name = "buffer" },
+	}),
+})
 
-local feedkeys = vim.fn.feedkeys
-local replace_termcodes = vim.api.nvim_replace_termcodes
-local backspace_keys = replace_termcodes('<tab>', true, true, true)
-local snippet_next_keys = replace_termcodes('<plug>luasnip-expand-or-jump', true, true, true)
-local snippet_prev_keys = replace_termcodes('<plug>luasnip-jump-prev', true, true, true)
+-- Set configuration for specific filetype.
+cmp.setup.filetype("gitcommit", {
+	sources = cmp.config.sources({
+		{ name = "cmp_git" }, -- You can specify the `cmp_git` source if you were installed it.
+	}, {
+		{ name = "buffer" },
+	}),
+})
 
-cmp.setup {
-  completion = { completeopt = 'menu,menuone,noinsert' },
-  sorting = {
-    comparators = {
-      -- The built-in comparators:
-      cmp.config.compare.offset,
-      cmp.config.compare.exact,
-      cmp.config.compare.score,
-      require('cmp-under-comparator').under,
-      cmp.config.compare.kind,
-      cmp.config.compare.sort_text,
-      cmp.config.compare.length,
-      cmp.config.compare.order,
-    },
-  },
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  mapping = {
-    ['<cr>'] = cmp.mapping.confirm { select = true, behavior = cmp.ConfirmBehavior.Replace },
-    ['<tab>'] = function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        feedkeys(snippet_next_keys, '')
-      elseif check_backspace() then
-        feedkeys(backspace_keys, 'n')
-      else
-        fallback()
-      end
-    end,
-    ['<s-tab>'] = function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        feedkeys(snippet_prev_keys, '')
-      else
-        fallback()
-      end
-    end,
-  },
-  sources = {
-    { name = 'nvim_lsp_signature_help' },
-    { name = 'nvim_lsp' },
-    { name = 'orgmode' },
-    { name = 'luasnip' },
-    { name = 'nvim_lua' },
-    { name = 'path' },
-    { name = 'buffer' },
-  },
-}
+-- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline("/", {
+	sources = {
+		{ name = "buffer" },
+	},
+})
+
+-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline(":", {
+	sources = cmp.config.sources({
+		{ name = "path" },
+	}, {
+		{ name = "cmdline" },
+	}),
+})
+
