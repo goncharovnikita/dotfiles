@@ -76,13 +76,13 @@ tmux_conf_theme_message_bg='#3b4251'                    # primary
 tmux_conf_theme_message_attr='bold'
 
 # status line command style (<prefix> : Escape)
-tmux_conf_theme_message_command_fg='#ffff00'            # yellow
+tmux_conf_theme_message_command_fg='#979eab'            # onedark foreground
 tmux_conf_theme_message_command_bg='#3b4251'            # black
 tmux_conf_theme_message_command_attr='bold'
 
 # window modes style
 tmux_conf_theme_mode_fg='#ffffff'                       # black
-tmux_conf_theme_mode_bg='#ffff00'                       # yellow
+tmux_conf_theme_mode_bg='#979eab'                       # onedark foreground
 tmux_conf_theme_mode_attr='bold'
 
 # status line style
