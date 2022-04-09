@@ -5,7 +5,7 @@ local runtime_path = vim.split(package.path, ";")
 
 vim.opt.signcolumn = "yes"
 
-local servers = { "gopls", "pylsp" }
+local servers = { "pylsp" }
 local capabilities = cmp_nvim_lsp.update_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lsp_on_attach = function(_, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
@@ -37,6 +37,27 @@ for _, lsp in ipairs(servers) do
         capabilities = capabilities,
 	})
 end
+
+nvim_lsp.gopls.setup({
+    on_attach = lsp_on_attach,
+    flags = lsp_flags,
+    capabilities = capabilities,
+    settings = {
+        gopls = {
+        },
+    },
+})
+
+local function setup_golangci_lint_lsp()
+    nvim_lsp.golangci_lint_ls.setup({
+        flags = lsp_flags,
+        capabilities = capabilities,
+        settings = {
+            command = { "golangci-lint", "run", "--out-format", "json" }
+        },
+    })
+end
+
 
 nvim_lsp.sqls.setup({
 	on_attach = function(client, bufnr)
@@ -80,4 +101,5 @@ nvim_lsp.sumneko_lua.setup({
 		},
 	},
 })
+
 

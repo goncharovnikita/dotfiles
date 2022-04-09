@@ -36,7 +36,7 @@ return packer.startup(function()
 	-- Colorschemes
 	use({ "monsonjeremy/onedark.nvim", config = [[require('config.colorscheme')]] })
 
-	use({ "Mofiqul/vscode.nvim", config = [[require('config.colorscheme')]] })
+	-- use({ "Mofiqul/vscode.nvim", config = [[require('config.colorscheme')]] })
 
 	-- Navigation
 	use({ "phaazon/hop.nvim", config = [[require('config.hop')]] })
@@ -91,9 +91,6 @@ return packer.startup(function()
 
 	-- Sql
 	use({ "nanotee/sqls.nvim", opt = true, ft = { "sql" } })
-
-	-- Project
-	use({ "ahmedkhalf/project.nvim", config = [[require('config.project')]] })
 
 	-- Linter
 	use({ "mfussenegger/nvim-lint", opt = true, ft = { "go" } })
