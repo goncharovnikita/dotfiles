@@ -42,7 +42,7 @@ return packer.startup(function()
 	use({ "phaazon/hop.nvim", config = [[require('config.hop')]] })
 
 	-- Treesitter
-	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
+	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = [[require('config.treesitter')]] })
     use 'nvim-treesitter/nvim-treesitter-textobjects'
 
 	-- Telescope
@@ -52,24 +52,15 @@ return packer.startup(function()
 			requires = {
 				"nvim-lua/popup.nvim",
 				"nvim-lua/plenary.nvim",
-				"telescope-frecency.nvim",
 				"telescope-fzf-native.nvim",
 			},
 			wants = {
 				"popup.nvim",
 				"plenary.nvim",
-				"telescope-frecency.nvim",
 				"telescope-fzf-native.nvim",
 			},
 			setup = [[require('config.telescope_setup')]],
 			config = [[require('config.telescope')]],
-			cmd = "Telescope",
-			module = "telescope",
-		},
-		{
-			"nvim-telescope/telescope-frecency.nvim",
-			after = "telescope.nvim",
-			requires = "tami5/sqlite.lua",
 		},
 		{
 			"nvim-telescope/telescope-fzf-native.nvim",
@@ -83,17 +74,11 @@ return packer.startup(function()
 	-- Tree
 	use({ "preservim/nerdtree", config = [[require('config.nerdtree')]] })
 
-	-- Sniprun
-	use({ "michaelb/sniprun", run = "bash install.sh" })
-
 	-- Go
 	use({ "ray-x/go.nvim", ft = { "go" }, config = [[require('config.go')]] })
 
 	-- Sql
-	use({ "nanotee/sqls.nvim", opt = true, ft = { "sql" } })
-
-	-- Linter
-	use({ "mfussenegger/nvim-lint", opt = true, ft = { "go" } })
+	use({ "nanotee/sqls.nvim" })
 
 	-- Git
 	use({ "tpope/vim-fugitive", config = [[require('config.git')]] })
