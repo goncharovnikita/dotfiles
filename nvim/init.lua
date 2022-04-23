@@ -36,4 +36,3 @@ map('n', '<leader>bp', ':bp<cr>', { silent = true })
 map('n', '<leader>xr', ':so ~/.config/nvim/init.vim<cr>', { silent = true })
 
 require('plugins')
-

@@ -1,3 +1,4 @@
+local cfg = _G.localconfig and _G.localconfig.lsp_config or {}
 local nvim_lsp = require("lspconfig")
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
 local runtime_path = vim.split(package.path, ";")
@@ -35,13 +36,12 @@ nvim_lsp.pylsp.setup({
 })
 
 nvim_lsp.gopls.setup({
-    on_attach = lsp_on_attach,
-    flags = lsp_flags,
-    capabilities = capabilities,
-    settings = {
-        gopls = {
-        },
-    },
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
+	settings = {
+		gopls = cfg.gopls_settings,
+	},
 })
 
 nvim_lsp.sqls.setup({
@@ -66,7 +66,7 @@ table.insert(runtime_path, "lua/?/init.lua")
 nvim_lsp.sumneko_lua.setup({
 	on_attach = lsp_on_attach,
 	flags = lsp_flags,
-    capabilities = capabilities,
+	capabilities = capabilities,
 	settings = {
 		Lua = {
 			runtime = {
@@ -90,5 +90,4 @@ nvim_lsp.sumneko_lua.setup({
 		},
 	},
 })
-
 

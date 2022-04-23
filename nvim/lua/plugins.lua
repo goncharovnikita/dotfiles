@@ -22,7 +22,7 @@ cmd([[packadd packer.nvim]])
 local packer = require('packer')
 local use = packer.use
 
-return packer.startup(function()
+packer.startup(function()
 	use("wbthomason/packer.nvim")
 
 	use("tpope/vim-commentary")
@@ -36,14 +36,12 @@ return packer.startup(function()
 	-- Colorschemes
 	use({ "monsonjeremy/onedark.nvim", config = [[require('config.colorscheme')]] })
 
-	-- use({ "Mofiqul/vscode.nvim", config = [[require('config.colorscheme')]] })
-
 	-- Navigation
 	use({ "phaazon/hop.nvim", config = [[require('config.hop')]] })
 
 	-- Treesitter
 	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = [[require('config.treesitter')]] })
-    use 'nvim-treesitter/nvim-treesitter-textobjects'
+	use 'nvim-treesitter/nvim-treesitter-textobjects'
 
 	-- Telescope
 	use({
@@ -86,9 +84,9 @@ return packer.startup(function()
 	-- CMP
 	use({ "L3MON4D3/LuaSnip" }) -- Snippets plugin
 	use({ "hrsh7th/nvim-cmp" }) -- Autocompletion plugin
-    use({ "hrsh7th/cmp-nvim-lsp" })
-    use({ "hrsh7th/cmp-nvim-lsp-signature-help" })
-    use({ "saadparwaiz1/cmp_luasnip", config = [[require('config.cmp')]] })
+	use({ "hrsh7th/cmp-nvim-lsp" })
+	use({ "hrsh7th/cmp-nvim-lsp-signature-help" })
+	use({ "saadparwaiz1/cmp_luasnip", config = [[require('config.cmp')]] })
 
 	-- LSP
 	use({
