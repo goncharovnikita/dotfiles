@@ -91,3 +91,4 @@ nvim_lsp.sumneko_lua.setup({
 	},
 })
 
+nvim_lsp.hls.setup({})

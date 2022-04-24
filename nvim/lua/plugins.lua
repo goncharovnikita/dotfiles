@@ -94,5 +94,11 @@ packer.startup(function()
 		config = [[require('config.lsp')]],
 	})
 
+	if _G.localconfig and _G.localconfig.plugins then
+		print(vim.inspect(_G.localconfig.plugins))
+		for _, p in pairs(_G.localconfig.plugins) do
+			p(use)
+		end
+	end
 end)
 
