@@ -72,9 +72,6 @@ packer.startup(function()
 	-- Tree
 	use({ "preservim/nerdtree", config = [[require('config.nerdtree')]] })
 
-	-- Go
-	use({ "ray-x/go.nvim", ft = { "go" }, config = [[require('config.go')]] })
-
 	-- Sql
 	use({ "nanotee/sqls.nvim" })
 
@@ -102,3 +99,6 @@ packer.startup(function()
 	end
 end)
 
+
+-- Go
+require('config.go')
