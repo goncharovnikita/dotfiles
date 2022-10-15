@@ -20,7 +20,9 @@ cmd([[
 cmd([[packadd packer.nvim]])
 
 local packer = require('packer')
+
 local use = packer.use
+local silent = { silent = true }
 
 packer.startup(function()
 	use("wbthomason/packer.nvim")
@@ -31,16 +33,24 @@ packer.startup(function()
 
 	use("tpope/vim-surround")
 
-	use("nathanaelkane/vim-indent-guides")
-
 	-- Colorschemes
-	use({ "monsonjeremy/onedark.nvim", config = [[require('config.colorscheme')]] })
+	use({ "monsonjeremy/onedark.nvim", config = function ()
+		vim.o.background = 'dark'
+		require('onedark').setup()
+	end })
 
 	-- Navigation
-	use({ "phaazon/hop.nvim", config = [[require('config.hop')]] })
+	use({ "phaazon/hop.nvim", config = function ()
+		local map = require('config.utils').map
+		require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+		map('n', '<c-h>', [[<cmd>HopWord<cr>]], silent)
+	end })
 
 	-- Treesitter
 	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = [[require('config.treesitter')]] })
+	use({ 'nvim-treesitter/nvim-treesitter-context', config = function ()
+		require'treesitter-context'.setup()
+	end })
 	use 'nvim-treesitter/nvim-treesitter-textobjects'
 
 	-- Telescope
@@ -69,14 +79,16 @@ packer.startup(function()
 	-- Icons
 	use("kyazdani42/nvim-web-devicons")
 
-	-- Tree
-	use({ "preservim/nerdtree", config = [[require('config.nerdtree')]] })
-
 	-- Sql
 	use({ "nanotee/sqls.nvim" })
 
 	-- Git
-	use({ "tpope/vim-fugitive", config = [[require('config.git')]] })
+	use({ "tpope/vim-fugitive", config = function ()
+		local map = require('config.utils').map
+
+		map('n', '<leader>gss', [[<cmd>Git<cr>]], silent)
+		map('n', '<leader>gll', [[<cmd>GcLog<cr>]], silent)
+	end })
 
 	-- CMP
 	use({ "L3MON4D3/LuaSnip" }) -- Snippets plugin
@@ -92,13 +104,27 @@ packer.startup(function()
 	})
 
 	if _G.localconfig and _G.localconfig.plugins then
-		print(vim.inspect(_G.localconfig.plugins))
 		for _, p in pairs(_G.localconfig.plugins) do
 			p(use)
 		end
 	end
 end)
 
+local map = require('config.utils').map
 
 -- Go
 require('config.go')
+
+-- Netrw
+
+vim.g.netrw_winsize = 20
+vim.g.netrw_keepdir = 0
+vim.g.netrw_banner = 0
+vim.g.netrw_localcopydircmd = 'cp -r'
+vim.g.netrw_browse_split = 4
+vim.g.netrw_altv = 1
+vim.g.netrw_liststyle = 3
+
+map('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
+map('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
+

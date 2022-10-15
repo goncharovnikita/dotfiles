@@ -1,28 +1,27 @@
 local cfg = _G.localconfig and _G.localconfig.lsp_config or {}
 local nvim_lsp = require("lspconfig")
-local cmp_nvim_lsp = require("cmp_nvim_lsp")
 local runtime_path = vim.split(package.path, ";")
 
 vim.opt.signcolumn = "yes"
 
-local capabilities = cmp_nvim_lsp.update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local lsp_on_attach = function(_, bufnr)
-  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local opts = { noremap=true, silent=true, buffer=bufnr }
+  local function buf_set_keymap(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
 
-  -- Mappings.
-  local opts = { noremap=true, silent=true }
-
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<leader>rr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  buf_set_keymap('n', '<leader>bff', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+  buf_set_keymap('n', 'gD', vim.lsp.buf.declaration)
+  buf_set_keymap('n', 'gd', vim.lsp.buf.definition)
+  buf_set_keymap('n', 'K', vim.lsp.buf.hover)
+  buf_set_keymap('n', 'gi', vim.lsp.buf.implementation)
+  buf_set_keymap('n', '<C-k>', vim.lsp.buf.signature_help)
+  buf_set_keymap('n', 'gr', vim.lsp.buf.references)
+  buf_set_keymap('n', '[d', vim.diagnostic.goto_prev)
+  buf_set_keymap('n', ']d', vim.diagnostic.goto_next)
+  buf_set_keymap('n', '<leader>rr', vim.lsp.buf.rename)
+  buf_set_keymap('n', '<leader>ca', vim.lsp.buf.code_action)
+  buf_set_keymap('n', '<leader>bff', function()
+	  vim.lsp.buf.format { async = false }
+  end)
 end
 
 local lsp_flags = {
@@ -42,6 +41,18 @@ nvim_lsp.gopls.setup({
 	settings = {
 		gopls = cfg.gopls_settings,
 	},
+})
+
+nvim_lsp.yamlls.setup({
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
+})
+
+nvim_lsp.jsonls.setup({
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
 })
 
 nvim_lsp.sqls.setup({
@@ -70,20 +81,15 @@ nvim_lsp.sumneko_lua.setup({
 	settings = {
 		Lua = {
 			runtime = {
-				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
 				version = "LuaJIT",
-				-- Setup your lua path
 				path = runtime_path,
 			},
 			diagnostics = {
-				-- Get the language server to recognize the `vim` global
 				globals = { "vim" },
 			},
 			workspace = {
-				-- Make the server aware of Neovim runtime files
 				library = vim.api.nvim_get_runtime_file("", true),
 			},
-			-- Do not send telemetry data containing a randomized but unique identifier
 			telemetry = {
 				enable = false,
 			},
