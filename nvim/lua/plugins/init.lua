@@ -9,14 +9,6 @@ if fn.empty(fn.glob(install_path)) > 0 then
 	fn.system({ "git", "clone", "https://github.com/wbthomason/packer.nvim", install_path })
 end
 
--- Rerun PackerCompile everytime pluggins.lua is updated
-cmd([[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
-  augroup end
-]])
-
 cmd([[packadd packer.nvim]])
 
 local packer = require('packer')
@@ -37,13 +29,6 @@ packer.startup(function()
 	use({ "monsonjeremy/onedark.nvim", config = function ()
 		vim.o.background = 'dark'
 		require('onedark').setup()
-	end })
-
-	-- Navigation
-	use({ "phaazon/hop.nvim", config = function ()
-		local map = require('config.utils').map
-		require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
-		map('n', '<c-h>', [[<cmd>HopWord<cr>]], silent)
 	end })
 
 	-- Treesitter
@@ -67,7 +52,6 @@ packer.startup(function()
 				"plenary.nvim",
 				"telescope-fzf-native.nvim",
 			},
-			setup = [[require('config.telescope_setup')]],
 			config = [[require('config.telescope')]],
 		},
 		{
@@ -84,10 +68,8 @@ packer.startup(function()
 
 	-- Git
 	use({ "tpope/vim-fugitive", config = function ()
-		local map = require('config.utils').map
-
-		map('n', '<leader>gss', [[<cmd>Git<cr>]], silent)
-		map('n', '<leader>gll', [[<cmd>GcLog<cr>]], silent)
+		vim.keymap.set('n', '<leader>gss', [[<cmd>Git<cr>]], silent)
+		vim.keymap.set('n', '<leader>gll', [[<cmd>GcLog<cr>]], silent)
 	end })
 
 	-- CMP
@@ -110,8 +92,6 @@ packer.startup(function()
 	end
 end)
 
-local map = require('config.utils').map
-
 -- Go
 require('config.go')
 
@@ -125,6 +105,6 @@ vim.g.netrw_browse_split = 4
 vim.g.netrw_altv = 1
 vim.g.netrw_liststyle = 3
 
-map('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
-map('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
+vim.keymap.set('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
+vim.keymap.set('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
 

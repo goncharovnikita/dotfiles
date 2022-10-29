@@ -1,4 +1,3 @@
-local map = require('config.utils').map
 local gotests = require('plugins.gotests')
 local silent = { silent = true }
 local vfn = vim.fn
@@ -85,5 +84,4 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 
 vim.keymap.set('n', '<leader>gfs', function() fill('fillstruct') end)
 vim.keymap.set('n', '<leader>gat', function() gotests.fun_test() end)
-map('n', '<leader>gtf', [[<cmd>GoTestFunc<cr>]], silent)
 

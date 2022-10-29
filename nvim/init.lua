@@ -28,11 +28,9 @@ vim.o.tabstop = 4
 vim.o.termguicolors = true
 vim.o.completeopt = 'menuone,noselect'
 
-local map = require('config.utils').map
-
-map('n', '<leader><leader>', '/', { silent = true })
-map('n', '<leader>bn', ':bn<cr>', { silent = true })
-map('n', '<leader>bp', ':bp<cr>', { silent = true })
-map('n', '<leader>xr', ':so ~/.config/nvim/init.vim<cr>', { silent = true })
+vim.keymap.set('n', '<leader><leader>', '/', { silent = true })
+vim.keymap.set('n', '<leader>bn', ':bn<cr>', { silent = true })
+vim.keymap.set('n', '<leader>bp', ':bp<cr>', { silent = true })
+vim.keymap.set('n', '<leader>xr', ':so ~/.config/nvim/init.vim<cr>', { silent = true })
 
 require('plugins')
