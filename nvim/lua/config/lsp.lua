@@ -98,3 +98,9 @@ nvim_lsp.sumneko_lua.setup({
 })
 
 nvim_lsp.hls.setup({})
+
+nvim_lsp.clangd.setup({
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
+})

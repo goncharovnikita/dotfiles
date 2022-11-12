@@ -26,9 +26,8 @@ packer.startup(function()
 	use("tpope/vim-surround")
 
 	-- Colorschemes
-	use({ "monsonjeremy/onedark.nvim", config = function ()
-		vim.o.background = 'dark'
-		require('onedark').setup()
+	use({ "kvrohit/rasmus.nvim", config = function ()
+       vim.cmd.colorscheme('rasmus')
 	end })
 
 	-- Treesitter
@@ -98,7 +97,7 @@ require('config.go')
 -- Netrw
 
 vim.g.netrw_winsize = 20
-vim.g.netrw_keepdir = 0
+vim.g.netrw_keepdir = 1
 vim.g.netrw_banner = 0
 vim.g.netrw_localcopydircmd = 'cp -r'
 vim.g.netrw_browse_split = 4
@@ -107,4 +106,3 @@ vim.g.netrw_liststyle = 3
 
 vim.keymap.set('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
 vim.keymap.set('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
-
