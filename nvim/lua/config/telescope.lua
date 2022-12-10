@@ -21,7 +21,7 @@ telescope.load_extension('fzf')
 
 local silent = { silent = true }
 
-vim.keymap.set('n', '<C-p>', telescope_builtin.fd, silent)
+vim.keymap.set('n', '<C-p>', telescope_builtin.find_files, silent)
 vim.keymap.set('n', '<C-f>', telescope_builtin.current_buffer_fuzzy_find, silent)
 
 vim.keymap.set('n', '<leader>fb', telescope_builtin.buffers, silent)
