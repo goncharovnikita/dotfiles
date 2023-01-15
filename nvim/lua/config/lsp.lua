@@ -19,6 +19,9 @@ local lsp_on_attach = function(_, bufnr)
   buf_set_keymap('n', ']d', vim.diagnostic.goto_next)
   buf_set_keymap('n', '<leader>rr', vim.lsp.buf.rename)
   buf_set_keymap('n', '<leader>ca', vim.lsp.buf.code_action)
+  buf_set_keymap('n', '<leader>lrr', function()
+	vim.cmd "LspRestart"
+  end)
   buf_set_keymap('n', '<leader>bff', function()
 	  vim.lsp.buf.format { async = false }
   end)
