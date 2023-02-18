@@ -81,7 +81,6 @@ packer.startup(function()
 	use({
 		"neovim/nvim-lspconfig",
 		config = [[require('config.lsp')]],
-		event = "BufEnter",
 	})
 
 	if _G.localconfig and _G.localconfig.plugins then
