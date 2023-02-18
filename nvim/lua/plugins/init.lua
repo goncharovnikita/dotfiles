@@ -14,33 +14,36 @@ cmd([[packadd packer.nvim]])
 local packer = require('packer')
 
 local use = packer.use
-local silent = { silent = true }
 
 packer.startup(function()
 	use("wbthomason/packer.nvim")
 
 	use("tpope/vim-commentary")
 
-	use("tpope/vim-sensible")
-
 	use("tpope/vim-surround")
 
 	-- Colorschemes
-	use({ "kvrohit/rasmus.nvim", config = function ()
-       vim.cmd.colorscheme('rasmus')
+	use({ "catppuccin/nvim", as = "catppuccin", config = function ()
+       vim.cmd.colorscheme('catppuccin-mocha')
 	end })
 
 	-- Treesitter
-	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = [[require('config.treesitter')]] })
+	use({
+		"nvim-treesitter/nvim-treesitter",
+		run = ":TSUpdate",
+		as = "treesitter",
+		config = [[require('config.treesitter')]],
+	})
 	use({ 'nvim-treesitter/nvim-treesitter-context', config = function ()
 		require'treesitter-context'.setup()
-	end })
-	use 'nvim-treesitter/nvim-treesitter-textobjects'
+	end, after = "treesitter"})
+	use({ 'nvim-treesitter/nvim-treesitter-textobjects', after = "treesitter"})
 
 	-- Telescope
 	use({
 		{
 			"nvim-telescope/telescope.nvim",
+			tag = '0.1.1',
 			requires = {
 				"nvim-lua/popup.nvim",
 				"nvim-lua/plenary.nvim",
@@ -59,29 +62,26 @@ packer.startup(function()
 		},
 	})
 
-	-- Icons
-	use("kyazdani42/nvim-web-devicons")
-
 	-- Sql
 	use({ "nanotee/sqls.nvim" })
 
-	-- Git
-	use({ "tpope/vim-fugitive", config = function ()
-		vim.keymap.set('n', '<leader>gss', [[<cmd>Git<cr>]], silent)
-		vim.keymap.set('n', '<leader>gll', [[<cmd>GcLog<cr>]], silent)
-	end })
-
 	-- CMP
-	use({ "L3MON4D3/LuaSnip" }) -- Snippets plugin
-	use({ "hrsh7th/nvim-cmp" }) -- Autocompletion plugin
-	use({ "hrsh7th/cmp-nvim-lsp" })
-	use({ "hrsh7th/cmp-nvim-lsp-signature-help" })
-	use({ "saadparwaiz1/cmp_luasnip", config = [[require('config.cmp')]] })
+	use({ "L3MON4D3/LuaSnip", config = [[require('config.luasnip')]] })
+	use({
+		"hrsh7th/nvim-cmp",
+		requires = {
+			"hrsh7th/cmp-nvim-lsp",
+			"hrsh7th/cmp-nvim-lsp-signature-help",
+			"saadparwaiz1/cmp_luasnip",
+		},
+		config = [[require('config.cmp')]],
+	})
 
 	-- LSP
 	use({
 		"neovim/nvim-lspconfig",
 		config = [[require('config.lsp')]],
+		event = "BufEnter",
 	})
 
 	if _G.localconfig and _G.localconfig.plugins then
@@ -91,18 +91,3 @@ packer.startup(function()
 	end
 end)
 
--- Go
-require('config.go')
-
--- Netrw
-
-vim.g.netrw_winsize = 20
-vim.g.netrw_keepdir = 1
-vim.g.netrw_banner = 0
-vim.g.netrw_localcopydircmd = 'cp -r'
-vim.g.netrw_browse_split = 4
-vim.g.netrw_altv = 1
-vim.g.netrw_liststyle = 3
-
-vim.keymap.set('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
-vim.keymap.set('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
