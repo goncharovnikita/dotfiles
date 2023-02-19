@@ -77,7 +77,7 @@ nvim_lsp.sqls.setup({
 table.insert(runtime_path, "lua/?.lua")
 table.insert(runtime_path, "lua/?/init.lua")
 
-nvim_lsp.sumneko_lua.setup({
+nvim_lsp.lua_ls.setup({
 	on_attach = lsp_on_attach,
 	flags = lsp_flags,
 	capabilities = capabilities,
