@@ -1,6 +1,5 @@
 local ls = require("luasnip")
 local fmta = require("luasnip.extras.fmt").fmta
-local gotests = require('plugins.gotests')
 local buf_util = require('util.buffer')
 local Job = require('plenary.job')
 
@@ -278,7 +277,7 @@ local function fill(cmd)
 end
 
 local cache = {}
-
+local test_augroups = {}
 
 
 local function get_test_result_buffer()
@@ -421,6 +420,44 @@ local function closeTestResultsWindow()
 	vim.api.nvim_win_close(win, true)
 end
 
+local function runTestsOnSaveForFile()
+	local fname = vim.fn.expand("%")
+	local augroup_name = "go_auto_tests_" .. fname
+
+	if test_augroups[augroup_name] then
+		return
+	end
+
+	local group = vim.api.nvim_create_augroup(augroup_name, { clear = true })
+	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+		group = group,
+		callback = function()
+			runTests()
+		end,
+		pattern = { fname }
+	})
+
+	test_augroups[augroup_name] = group
+end
+
+local function clearTestAugroupForFile()
+	local fname = vim.fn.expand("%")
+	local augroup_name = "go_auto_tests_" .. fname
+	local group = test_augroups[augroup_name]
+
+	if group then
+		vim.api.nvim_del_augroup_by_id(group)
+		test_augroups[augroup_name] = nil
+	end
+end
+
+local function clearTestAugroups()
+	for name, group in pairs(test_augroups) do
+		vim.api.nvim_del_augroup_by_id(group)
+		test_augroups[name] = nil
+	end
+end
+
 vim.api.nvim_create_user_command("GoTest", runTests, {})
 vim.api.nvim_create_user_command("GoTestFunc", runFuncTests, {})
 vim.api.nvim_create_user_command("GoTestResults", getTestResults, {})
@@ -434,7 +471,6 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 })
 
 vim.keymap.set('n', '<leader>gfs', function() fill('fillstruct') end)
-vim.keymap.set('n', '<leader>gat', function() gotests.fun_test() end)
 
 -- Test keymaps
 vim.keymap.set('n', '<leader>tt', runTests)
@@ -442,3 +478,6 @@ vim.keymap.set('n', '<leader>tf', runFuncTests)
 vim.keymap.set('n', '<leader>tr', getTestResults)
 vim.keymap.set('n', '<leader>tc', cleanTestResults)
 vim.keymap.set('n', '<leader>to', closeTestResultsWindow)
+vim.keymap.set('n', '<leader>tar', runTestsOnSaveForFile)
+vim.keymap.set('n', '<leader>tao', clearTestAugroupForFile)
+vim.keymap.set('n', '<leader>tac', clearTestAugroups)
