@@ -5,30 +5,31 @@ local runtime_path = vim.split(package.path, ";")
 vim.opt.signcolumn = "yes"
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lsp_on_attach = function(_, bufnr)
-  local opts = { noremap=true, silent=true, buffer=bufnr }
-  local function buf_set_keymap(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
 
-  buf_set_keymap('n', 'gD', vim.lsp.buf.declaration)
-  buf_set_keymap('n', 'gd', vim.lsp.buf.definition)
-  buf_set_keymap('n', 'K', vim.lsp.buf.hover)
-  buf_set_keymap('n', 'gi', vim.lsp.buf.implementation)
-  buf_set_keymap('n', '<C-k>', vim.lsp.buf.signature_help)
-  buf_set_keymap('n', 'gr', vim.lsp.buf.references)
-  buf_set_keymap('n', '[d', vim.diagnostic.goto_prev)
-  buf_set_keymap('n', ']d', vim.diagnostic.goto_next)
-  buf_set_keymap('n', '<leader>rr', vim.lsp.buf.rename)
-  buf_set_keymap('n', '<leader>ca', vim.lsp.buf.code_action)
-  buf_set_keymap('n', '<leader>lrr', function()
-	vim.cmd "LspRestart"
-  end)
-  buf_set_keymap('n', '<leader>bff', function()
-	  vim.lsp.buf.format { async = false }
-  end)
+local lsp_on_attach = function(_, bufnr)
+	local opts = { noremap = true, silent = true, buffer = bufnr }
+	local function buf_set_keymap(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
+
+	buf_set_keymap('n', 'gD', vim.lsp.buf.declaration)
+	buf_set_keymap('n', 'gd', vim.lsp.buf.definition)
+	buf_set_keymap('n', 'K', vim.lsp.buf.hover)
+	buf_set_keymap('n', 'gi', vim.lsp.buf.implementation)
+	buf_set_keymap('n', '<C-k>', vim.lsp.buf.signature_help)
+	buf_set_keymap('n', 'gr', vim.lsp.buf.references)
+	buf_set_keymap('n', '[d', vim.diagnostic.goto_prev)
+	buf_set_keymap('n', ']d', vim.diagnostic.goto_next)
+	buf_set_keymap('n', '<leader>rr', vim.lsp.buf.rename)
+	buf_set_keymap('n', '<leader>ca', vim.lsp.buf.code_action)
+	buf_set_keymap('n', '<leader>lrr', function()
+		vim.cmd "LspRestart"
+	end)
+	buf_set_keymap('n', '<leader>bff', function()
+		vim.lsp.buf.format { async = false }
+	end)
 end
 
 local lsp_flags = {
-  debounce_text_changes = 500,
+	debounce_text_changes = 500,
 }
 
 nvim_lsp.pylsp.setup({
@@ -59,17 +60,7 @@ nvim_lsp.jsonls.setup({
 })
 
 nvim_lsp.sqls.setup({
-	on_attach = function(client, bufnr)
-		require("sqls").on_attach(client, bufnr)
-		lsp_on_attach(client, bufnr)
-
-		local function buf_set_keymap(...)
-			vim.api.nvim_buf_set_keymap(bufnr, ...)
-		end
-		local opts = { noremap = true, silent = true }
-
-		buf_set_keymap("v", "e", ":SqlsExecuteQuery<CR>", opts)
-	end,
+	on_attach = lsp_on_attach,
 	capabilities = capabilities,
 	flags = lsp_flags,
 })

@@ -64,4 +64,4 @@ vim.g.loaded_matchparen = 1
 vim.g.loaded_logiPat = 1
 vim.g.loaded_rrhelper = 1
 
-require('plugins')
+require('plugins.lazy')
