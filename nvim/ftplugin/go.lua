@@ -458,6 +458,78 @@ local function clearTestAugroups()
 	end
 end
 
+local function generateFileTests()
+	local function handle_result(err, text)
+		if not err then
+			print(text)
+		else
+			print(err)
+		end
+	end
+
+	local gotest_args = {
+		"-w", "-all",
+	}
+
+	if _G.localconfig and _G.localconfig.gotests_template_dir then
+		table.insert(gotest_args, "-template")
+		table.insert(gotest_args, _G.localconfig.gotests_template)
+
+		table.insert(gotest_args, "-template_dir")
+		table.insert(gotest_args, _G.localconfig.gotests_template_dir)
+	end
+
+	local file = vfn.expand("%:p")
+
+	table.insert(gotest_args, file)
+
+	Job:new({
+		command = 'gotests',
+		args = gotest_args,
+		on_stdout = handle_result,
+		on_stderr = handle_result,
+	}):start()
+end
+
+local function generateFuncTests()
+	local func_name = get_current_function_name()
+	if not func_name then
+		print("could not find current func name")
+		return
+	end
+
+	local function handle_result(err, text)
+		if not err then
+			print(text)
+		else
+			print(err)
+		end
+	end
+
+	local gotest_args = {
+		"-w", "-only", func_name,
+	}
+
+	if _G.localconfig and _G.localconfig.gotests_template_dir then
+		table.insert(gotest_args, "-template")
+		table.insert(gotest_args, _G.localconfig.gotests_template)
+
+		table.insert(gotest_args, "-template_dir")
+		table.insert(gotest_args, _G.localconfig.gotests_template_dir)
+	end
+
+	local file = vfn.expand("%:p")
+
+	table.insert(gotest_args, file)
+
+	Job:new({
+		command = 'gotests',
+		args = gotest_args,
+		on_stdout = handle_result,
+		on_stderr = handle_result,
+	}):start()
+end
+
 vim.api.nvim_create_user_command("GoTest", runTests, {})
 vim.api.nvim_create_user_command("GoTestFunc", runFuncTests, {})
 vim.api.nvim_create_user_command("GoTestResults", getTestResults, {})
@@ -481,3 +553,7 @@ vim.keymap.set('n', '<leader>to', closeTestResultsWindow)
 vim.keymap.set('n', '<leader>tar', runTestsOnSaveForFile)
 vim.keymap.set('n', '<leader>tao', clearTestAugroupForFile)
 vim.keymap.set('n', '<leader>tac', clearTestAugroups)
+
+vim.keymap.set('n', '<leader>gtf', generateFuncTests)
+vim.keymap.set('n', '<leader>gtt', generateFileTests)
+
