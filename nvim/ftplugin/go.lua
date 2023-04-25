@@ -94,7 +94,10 @@ local function get_current_function_node(offset)
 	local bufn = vim.api.nvim_get_current_buf()
 	local cl = vim.api.nvim_win_get_cursor(winn)
 	local coln = cl[1] - offset
-	local cursor_node = vim.treesitter.get_node_at_pos(bufn, coln, cl[2])
+	local cursor_node = vim.treesitter.get_node({
+			bufnr = bufn,
+			pos = { coln, cl[2] }
+		})
 
 	local function_node = cursor_node
 
@@ -221,7 +224,7 @@ end
 
 local function format()
 	orgImports(1000)
-	vim.lsp.buf.formatting_sync()
+	vim.lsp.buf.format()
 end
 
 local function insert_result(result)
@@ -556,4 +559,3 @@ vim.keymap.set('n', '<leader>tac', clearTestAugroups)
 
 vim.keymap.set('n', '<leader>gtf', generateFuncTests)
 vim.keymap.set('n', '<leader>gtt', generateFileTests)
-
