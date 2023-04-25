@@ -34,10 +34,12 @@ local treesitter_langs = {
 	"vim",
 	"yaml",
 	"java",
+	"org",
 }
 
 local lsp_langs = {
 	"go",
+	"sh",
 	"bash",
 	"json",
 	"lua",
@@ -95,7 +97,6 @@ local plugins = {
 	-- Telescope
 	{
 		"nvim-telescope/telescope.nvim",
-		tag = '0.1.1',
 		dependencies = {
 			"nvim-lua/popup.nvim",
 			"nvim-lua/plenary.nvim",
@@ -129,6 +130,10 @@ local plugins = {
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
+			'hrsh7th/cmp-buffer',
+			'hrsh7th/cmp-path',
+			'hrsh7th/cmp-cmdline',
+			"hrsh7th/cmp-nvim-lua",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-nvim-lsp-signature-help",
 			"saadparwaiz1/cmp_luasnip",
@@ -136,7 +141,6 @@ local plugins = {
 		config = function()
 			require('config.cmp')
 		end,
-		lazy = true
 	},
 
 	-- LSP
@@ -146,7 +150,7 @@ local plugins = {
 			require('config.lsp')
 		end,
 		ft = lsp_langs,
-	}
+	},
 }
 
 require("lazy").setup(plugins,

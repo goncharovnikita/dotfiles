@@ -10,16 +10,16 @@ cmp.setup({
 		["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
 		['<C-n>'] = function(fallback)
 			if cmp.visible() then
-			  cmp.select_next_item()
+				cmp.select_next_item()
 			else
-			  fallback()
+				fallback()
 			end
 		end,
 		['<C-p>'] = function(fallback)
 			if cmp.visible() then
-			  cmp.select_prev_item()
+				cmp.select_prev_item()
 			else
-			  fallback()
+				fallback()
 			end
 		end,
 		["<C-k>"] = function(fallback)
@@ -37,6 +37,10 @@ cmp.setup({
 	}, {
 		{ name = "buffer" },
 	}),
+	performance = {
+		debounce = 200,
+		throttle = 200,
+	},
 })
 
 cmp.setup.filetype("gitcommit", {
@@ -49,15 +53,20 @@ cmp.setup.filetype("gitcommit", {
 
 cmp.setup.cmdline("/", {
 	sources = {
-		{ name = "buffer" },
+		{ name = "buffer", max_item_count = 3 },
 	},
 })
 
 cmp.setup.cmdline(":", {
 	sources = cmp.config.sources({
-		{ name = "path" },
+		{ name = "path", max_item_count = 3 },
 	}, {
-		{ name = "cmdline" },
+		{
+			name = "cmdline",
+			max_item_count = 3
+		},
 	}),
+	completion = {
+		keyword_length = 3,
+	},
 })
-

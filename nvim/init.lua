@@ -12,6 +12,7 @@ vim.o.smartindent = true
 vim.g.noerrorbells = true
 vim.g.novisualbell = true
 vim.o.cmdheight = 1
+vim.o.cursorline = true
 
 vim.o.splitright = true
 vim.o.splitbelow = true
@@ -32,6 +33,7 @@ vim.o.completeopt = 'menuone,noselect'
 vim.keymap.set('n', '<leader><leader>', '/', { silent = true })
 vim.keymap.set('n', '<leader>sr', ':so ~/.config/nvim/init.lua<cr>', { silent = true })
 vim.keymap.set('n', '<leader>ss', ':so %<cr>', { silent = true })
+vim.keymap.set('n', '<leader>fa', ':e #<cr>', { silent = true })
 
 vim.g.netrw_winsize = 20
 vim.g.netrw_keepdir = 1
