@@ -59,7 +59,7 @@ nvim_lsp.jsonls.setup({
 	capabilities = capabilities,
 })
 
-nvim_lsp.sqls.setup({
+nvim_lsp.sqlls.setup({
 	on_attach = lsp_on_attach,
 	capabilities = capabilities,
 	flags = lsp_flags,
@@ -95,6 +95,12 @@ nvim_lsp.lua_ls.setup({
 nvim_lsp.hls.setup({})
 
 nvim_lsp.clangd.setup({
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
+})
+
+nvim_lsp.bashls.setup({
 	on_attach = lsp_on_attach,
 	flags = lsp_flags,
 	capabilities = capabilities,
