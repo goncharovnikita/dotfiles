@@ -1,2 +1,0 @@
-genweather:
-	./weathercron.sh
