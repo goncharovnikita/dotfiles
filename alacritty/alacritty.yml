@@ -19,7 +19,7 @@
   # each instance of Alacritty. If it is not present, alacritty will
   # check the local terminfo database and use `alacritty` if it is
   # available, otherwise `xterm-256color` is used.
-  #TERM: xterm-256color
+  #TERM: alacritty
 
 window:
   # Window dimensions (changes require restart)
@@ -99,10 +99,10 @@ window:
   # the default theme variant.
   #decorations_theme_variant: None
 
-#scrolling:
+scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
-  #history: 10000
+  history: 1000
 
   # Scrolling distance multiplier.
   #multiplier: 3
@@ -182,39 +182,38 @@ font:
 # If `true`, bold text is drawn using the bright color variants.
 #draw_bold_text_with_bright_colors: false
 
-# Colors (Tomorrow Night)
+# TokyoNight Alacritty Colors
 colors:
   # Default colors
   primary:
-    background: '#1a1a19'
-    foreground: '#d1d1d1'
-
-  # Cursor colors
-  cursor:
-    text: '#1a1a19'
-    cursor: '#d1d1d1'
+    background: '0x222436'
+    foreground: '0xc8d3f5'
 
   # Normal colors
   normal:
-    black:   '#333332'
-    red:     '#ff968c'
-    green:   '#61957f'
-    yellow:  '#ffc591'
-    blue:    '#8db4d4'
-    magenta: '#de9bc8'
-    cyan:    '#7bb099'
-    white:   '#d1d1d1'
+    black:   '0x1b1d2b'
+    red:     '0xff757f'
+    green:   '0xc3e88d'
+    yellow:  '0xffc777'
+    blue:    '0x82aaff'
+    magenta: '0xc099ff'
+    cyan:    '0x86e1fc'
+    white:   '0x828bb8'
 
   # Bright colors
   bright:
-    black:   '#4c4c4b'
-    red:     '#ffafa5'
-    green:   '#7aae98'
-    yellow:  '#ffdeaa'
-    blue:    '#a6cded'
-    magenta: '#f7b4e1'
-    cyan:    '#94c9b2'
-    white:   '#eaeaea'
+    black:   '0x444a73'
+    red:     '0xff757f'
+    green:   '0xc3e88d'
+    yellow:  '0xffc777'
+    blue:    '0x82aaff'
+    magenta: '0xc099ff'
+    cyan:    '0x86e1fc'
+    white:   '0xc8d3f5'
+
+  indexed_colors:
+    - { index: 16, color: '0xff966c' }
+    - { index: 17, color: '0xc53b53' }
 
 # Bell
 #
