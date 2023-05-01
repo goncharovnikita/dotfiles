@@ -35,6 +35,9 @@ local treesitter_langs = {
 	"yaml",
 	"java",
 	"org",
+	"regex",
+	"markdown",
+	"markdown_inline",
 }
 
 local lsp_langs = {
