@@ -13,6 +13,10 @@ vim.g.noerrorbells = true
 vim.g.novisualbell = true
 vim.o.cmdheight = 1
 vim.o.cursorline = true
+vim.w.signcolumn = "yes"
+vim.g.signcolumn = "yes"
+vim.b.signcolumn = "yes"
+vim.opt.signcolumn = "yes"
 
 vim.o.splitright = true
 vim.o.splitbelow = true
@@ -26,6 +30,8 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.o.shiftwidth = 4
 vim.o.tabstop = 4
+vim.opt.list = true
+vim.opt.listchars:append "space:⋅"
 
 vim.o.termguicolors = true
 vim.o.completeopt = 'menuone,noselect'
@@ -67,3 +73,5 @@ vim.g.loaded_logiPat = 1
 vim.g.loaded_rrhelper = 1
 
 require('plugins.lazy')
+vim.cmd([[highlight ExtraWhitespace ctermbg=red guibg=red]])
+vim.cmd([[match ExtraWhitespace /\s\+$/]])

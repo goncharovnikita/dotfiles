@@ -90,6 +90,7 @@ local plugins = {
 							['if'] = '@function.inner',
 							['ac'] = '@class.outer',
 							['ic'] = '@class.inner',
+							['ii'] = '@assignment.inner',
 						},
 					},
 				}
@@ -154,6 +155,45 @@ local plugins = {
 		end,
 		ft = lsp_langs,
 	},
+	{
+		"glepnir/lspsaga.nvim",
+		event = "LspAttach",
+		config = function()
+			require("lspsaga").setup({
+				symbol_in_winbar = { enable = false }
+			})
+		end,
+		dependencies = {
+			{ "nvim-tree/nvim-web-devicons" },
+			{ "nvim-treesitter/nvim-treesitter" }
+		}
+	},
+	{
+		"j-hui/fidget.nvim",
+		branch = "legacy",
+		config = function()
+			require "fidget".setup {}
+		end
+	},
+
+	-- File explorer
+	{
+		"nvim-neo-tree/neo-tree.nvim",
+		branch = "v3.x",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
+		},
+		config =function ()
+			vim.g.neo_tree_remove_legacy_commands = 1
+
+			require("neo-tree").setup({})
+		end
+	},
+
+	{ "lukas-reineke/indent-blankline.nvim" },
+	{ "aklt/plantuml-syntax" },
 }
 
 require("lazy").setup(plugins,
@@ -161,6 +201,10 @@ require("lazy").setup(plugins,
 		performance = {
 			rtp = {
 				paths = rtp_paths,
+			},
+			disabled_plugins = {
+				"netrwPlugin",
+				"tutor",
 			},
 		},
 	}
@@ -191,3 +235,7 @@ vim.keymap.set('n', '<leader>fr', telescope('resume'), silent)
 vim.keymap.set('n', '<leader>lfr', telescope('lsp_references'), silent)
 vim.keymap.set('n', '<leader>lfi', telescope('lsp_implementations'), silent)
 vim.keymap.set('n', '<leader>lfo', telescope('lsp_document_symbols'), silent)
+
+-- Oil
+vim.keymap.set('n', '<leader>nn', "<cmd>Neotree toggle<CR>", silent)
+vim.keymap.set('n', '<leader>nf', "<cmd>Neotree reveal<CR>", silent)
