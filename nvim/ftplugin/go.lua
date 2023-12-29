@@ -1,6 +1,6 @@
 local ls = require("luasnip")
 local fmta = require("luasnip.extras.fmt").fmta
-local buf_util = require('util.buffer')
+local buf_util = require('util.buffer').new()
 local Job = require('plenary.job')
 
 local s = ls.snippet
@@ -339,12 +339,12 @@ local function make_job_result_handler()
 	local out_wiped = false
 
 	return function(err, text)
-		if not out_wiped then
-			bh.wipe()
-			out_wiped = true
-		end
-
 		vim.schedule(function()
+			if not out_wiped then
+				bh.wipe()
+				out_wiped = true
+			end
+
 			if err then
 				bh.write(err)
 			else
@@ -366,6 +366,8 @@ local function prepare_test_buf_and_win(title_text)
 	end
 
 	vim.api.nvim_set_current_win(current_win)
+
+	return bh
 end
 
 local function runTests()
@@ -388,24 +390,39 @@ end
 
 local function runFuncTests()
 	local func_name = get_current_function_name()
+	local file_name = vim.fn.expand('%:p:h')
+
 	if not func_name then
 		print("could not find current func name")
 		return
 	end
 
-	prepare_test_buf_and_win("Running test for " .. func_name .. "...")
+	local templateText = "Running test for " .. func_name .. "..."
+	local bh = prepare_test_buf_and_win(templateText)
 	local on_result = make_job_result_handler()
 
-	Job:new({
-		command = 'go',
-		args = { 'test', '-run', func_name, vim.fn.expand('%:p:h') },
-		on_stdout = function(err, text)
-			on_result(err, text)
-		end,
-		on_stderr = function(err, text)
-			on_result(err, text)
-		end
-	}):start()
+	local runJob = function()
+		vim.schedule(function()
+			bh.wipe()
+			bh.write(templateText)
+
+			Job:new({
+				command = 'go',
+				args = { 'test', '-run', func_name, '-count=1', file_name },
+				on_stdout = function(err, text)
+					on_result(err, text)
+				end,
+				on_stderr = function(err, text)
+					on_result(err, text)
+				end
+			}):start()
+		end)
+
+	end
+
+	vim.keymap.set("n", "r", runJob, { buffer = bh.get_buffer(), silent = true })
+
+	runJob()
 end
 
 local function getTestResults()

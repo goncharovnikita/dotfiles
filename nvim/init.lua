@@ -147,7 +147,6 @@ local plugins = {
 		"nvim-treesitter/nvim-treesitter",
 		as = "treesitter",
 		dependencies = {
-			'nvim-treesitter/nvim-treesitter-context',
 			'nvim-treesitter/nvim-treesitter-textobjects',
 		},
 		ft = treesitter_langs,
@@ -238,7 +237,10 @@ local plugins = {
 		event = "LspAttach",
 		config = function()
 			require("lspsaga").setup({
-				symbol_in_winbar = { enable = false }
+				symbol_in_winbar = { enable = false },
+				outline = {
+					win_width = 50,
+				},
 			})
 		end,
 		dependencies = {
