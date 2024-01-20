@@ -116,6 +116,9 @@ local treesitter_langs = {
 	"regex",
 	"markdown",
 	"markdown_inline",
+	"cpp",
+	"c",
+	"kdl",
 }
 
 local lsp_langs = {
@@ -127,6 +130,8 @@ local lsp_langs = {
 	"yaml",
 	"python",
 	"java",
+	"cpp",
+	"c",
 }
 
 local snippets_langs = {
