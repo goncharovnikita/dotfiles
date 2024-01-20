@@ -43,6 +43,16 @@ local function new()
 
 			local lines = vim.split(text, "\n")
 
+			bh.write_lines(lines)
+		end
+
+		function bh.write_lines(lines)
+			if not lines then
+				return
+			end
+
+			curr_lines = {}
+
 			for _, line in pairs(lines) do
 				add_curr_line(line)
 			end

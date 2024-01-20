@@ -265,7 +265,7 @@ local plugins = {
 			"nvim-tree/nvim-web-devicons",
 			"MunifTanjim/nui.nvim",
 		},
-		config =function ()
+		config = function()
 			vim.g.neo_tree_remove_legacy_commands = 1
 
 			require("neo-tree").setup({})
@@ -274,6 +274,39 @@ local plugins = {
 
 	{ "lukas-reineke/indent-blankline.nvim" },
 	{ "aklt/plantuml-syntax" },
+
+	-- DAP
+	{ "mfussenegger/nvim-dap" },
+	{
+		"rcarriga/nvim-dap-ui",
+		config = function()
+			require('dapui').setup()
+		end
+	},
+	{
+		"Weissle/persistent-breakpoints.nvim",
+		config = function()
+			require('persistent-breakpoints').setup({
+				load_breakpoints_event = { "BufReadPost" }
+			})
+		end
+	},
+	{
+		"leoluz/nvim-dap-go",
+		config = function()
+			require('dap-go').setup({
+				dap_configurations = {
+					{
+						-- Must be "go" or it will be ignored by the plugin
+						type = "go",
+						name = "Attach remote",
+						mode = "remote",
+						request = "attach",
+					},
+				},
+			})
+		end
+	},
 }
 
 require("lazy").setup(plugins,
@@ -318,3 +351,31 @@ vim.keymap.set('n', '<leader>lfo', telescope('lsp_document_symbols'), silent)
 -- Neotree
 vim.keymap.set('n', '<leader>nn', "<cmd>Neotree toggle<CR>", silent)
 vim.keymap.set('n', '<leader>nf', "<cmd>Neotree reveal<CR>", silent)
+
+-- DAP
+vim.keymap.set('n', '<leader>db', function() require('persistent-breakpoints.api').toggle_breakpoint() end, silent)
+vim.keymap.set('n', '<leader>dsi', function() require('dap').step_into() end, silent)
+vim.keymap.set('n', '<leader>dso', function() require('dap').step_out() end, silent)
+vim.keymap.set('n', '<leader>dsn', function() require('dap').step_over() end, silent)
+vim.keymap.set('n', '<leader>dsc', function() require('dap').continue() end, silent)
+vim.keymap.set('n', '<leader>dsq', function() require('dap').terminate() end, silent)
+vim.keymap.set('n', '<leader>dr', function() require('dap').repl.open() end, silent)
+vim.keymap.set({ 'n', 'v' }, '<leader>duh', function()
+	require('dap.ui.widgets').hover()
+end, silent)
+vim.keymap.set({ 'n', 'v' }, '<leader>dup', function()
+	require('dap.ui.widgets').preview()
+end, silent)
+vim.keymap.set('n', '<leader>duf', function()
+	local widgets = require('dap.ui.widgets')
+	widgets.centered_float(widgets.frames)
+end, silent)
+vim.keymap.set('n', '<leader>dus', function()
+	local widgets = require('dap.ui.widgets')
+	widgets.centered_float(widgets.scopes)
+end, silent)
+vim.keymap.set('n', '<leader>dtf', function() require('dap-go').debug_test() end, silent)
+vim.keymap.set('n', '<leader>dtr', function() require('dap-go').debug_last_test() end, silent)
+vim.keymap.set('n', '<leader>duo', function()
+	require('dapui').open()
+end, silent)

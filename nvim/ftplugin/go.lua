@@ -134,7 +134,7 @@ local function go_result_type()
 		return t "Not inside of a function"
 	end
 
-	local query = vim.treesitter.parse_query("go",
+	local query = vim.treesitter.query.parse("go",
 			[[
       [
         (method_declaration result: (_) @id)
@@ -440,6 +440,54 @@ local function closeTestResultsWindow()
 	vim.api.nvim_win_close(win, true)
 end
 
+local function listTestsInFile()
+	local win = prepare_test_buf_and_win("File tests:")
+	local bufn = vim.api.nvim_get_current_buf()
+	local root_node = vim.treesitter.get_node({
+		bufnr = bufn,
+	}):root()
+	local query = vim.treesitter.query.parse("go",
+			[[
+		[
+			(
+			 (method_declaration
+			     	name: (_) @name
+					parameters: (_) @params)
+				(#match? @name "^Test.+")
+				(#eq? @params "(t *testing.T)")
+			)
+			(
+			 (function_declaration
+			     	name: (_) @name
+					parameters: (_) @params)
+				(#match? @name "^Test.+")
+				(#eq? @params "(t *testing.T)")
+			)
+		]
+    ]]
+		)
+
+	vim.print(root_node)
+	local func_names = {}
+
+	for id, node, metadata in query:iter_captures(root_node, bufn) do
+		local name = query.captures[id] -- name of the capture in the query
+		local type = node:type() -- type of the captured node
+
+		vim.print(name)
+		vim.print(type)
+
+		if name == "name" then
+			local func_name = vim.treesitter.get_node_text(node, bufn, {
+				metadata = metadata,
+			})
+			table.insert(func_names, func_name)
+		end
+	end
+
+	win.write_lines(func_names)
+end
+
 local function runTestsOnSaveForFile()
 	local fname = vim.fn.expand("%")
 	local augroup_name = "go_auto_tests_" .. fname
@@ -573,6 +621,8 @@ vim.keymap.set('n', '<leader>to', closeTestResultsWindow)
 vim.keymap.set('n', '<leader>tar', runTestsOnSaveForFile)
 vim.keymap.set('n', '<leader>tao', clearTestAugroupForFile)
 vim.keymap.set('n', '<leader>tac', clearTestAugroups)
+
+vim.keymap.set('n', '<leader>lf', listTestsInFile)
 
 vim.keymap.set('n', '<leader>gtf', generateFuncTests)
 vim.keymap.set('n', '<leader>gtt', generateFileTests)
