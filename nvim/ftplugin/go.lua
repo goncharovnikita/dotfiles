@@ -3,101 +3,110 @@ local fmta = require("luasnip.extras.fmt").fmta
 local buf_util = require('util.buffer').new()
 local Job = require('plenary.job')
 
-local s = ls.snippet
-local t = ls.text_node
-local i = ls.insert_node
-local d = ls.dynamic_node
-local vfn = vim.fn
-
-
 local function_node_types = {
 	function_declaration = true,
 	method_declaration = true,
 	func_literal = true,
 }
 
-local get_node_text = vim.treesitter.get_node_text
-
-local transforms = {
-	int = function(_)
-		return { text = "0" }
-	end,
-	bool = function(_)
-		return { text = "false" }
-	end,
-	string = function(_)
-		return { text = [[""]] }
-	end,
-	error = function(_)
-		return { text = 'fmt.Errorf(" %w", err)', type = "error" }
-	end,
-	-- Types with a "*" mean they are pointers, so return nil
-	[function(text)
-		return string.find(text, "*", 1, true) ~= nil
-	end] = function(_, _)
-		return { text = "nil" }
-	end,
-}
-
-local function transform(text)
-	local condition_matches = function(condition, ...)
-		if type(condition) == "string" then
-			return condition == text
-		else
-			return condition(...)
-		end
-	end
-
-	for condition, result in pairs(transforms) do
-		if condition_matches(condition, text) then
-			return result(text)
-		end
-	end
-
-	return text
-end
-
-local function transform_text_to_snippet(node)
+---@param node FuncReturnType
+local function transform_func_return_type_to_snippet(node)
 	if node.type == "error" then
-		return fmta('fmt.Errorf("<text> :%", err)', { text = i(1, "error") })
+		return fmta('fmt.Errorf("<text>: %w", err)', { text = ls.insert_node(1, "error") })
 	end
 
-	return { t(node.text) }
+	if node.name then
+		return { ls.insert_node(1, node.name) }
+	end
+
+	return { ls.insert_node(1, "") }
 end
 
-local handlers = {
-	parameter_list = function(node)
-		local result = {}
+---@class FuncReturnType
+---@field type string
+---@field name string
 
-		local count = node:named_child_count()
-		for idx = 0, count - 1 do
-			local matching_node = node:named_child(idx)
-			local type_node = matching_node:field("type")[1]
+---@private
+---@param func_node TSNode
+---@return FuncReturnType[]
+local function generate_func_return_from_node(func_node)
+	local node_start, _, node_stop, _ = func_node:range()
 
-			table.insert(result, transform(get_node_text(type_node, 0)))
+	local query = vim.treesitter.query.parse("go",
+		[[
+	[
+		(function_declaration name: (_)
+			result: [
+				(parameter_list (
+					parameter_declaration
+					  name: (_) @param_name
+					  type: (_) @param_type
+				))
+				(parameter_list (
+					parameter_declaration
+					  type: (_) @param_type
+				))
+				(type_identifier) @param_type
+			]
+		)
+		(method_declaration name: (_)
+			result: [
+				(parameter_list (
+					parameter_declaration
+					  name: (_) @param_name
+					  type: (_) @param_type
+				))
+				(parameter_list (
+					parameter_declaration
+					  type: (_) @param_type
+				))
+				(type_identifier) @param_type
+			]
+		)
+		(func_literal
+			result: [
+				(parameter_list (
+					parameter_declaration
+					  name: (_) @param_name
+					  type: (_) @param_type
+				))
+				(parameter_list (
+					parameter_declaration
+					  type: (_) @param_type
+				))
+				(type_identifier) @param_type
+			]
+		)
+	]
+]]
+	)
 
-			if idx ~= count - 1 then
-				table.insert(result, { text = ", " })
-			end
+	local return_nodes = {}
+	local curr_node = {}
+
+	for id, node in query:iter_captures(func_node, 0, node_start, node_stop) do
+		local name = query.captures[id]
+
+		if name == "param_name" then
+			curr_node["name"] = vim.treesitter.get_node_text(node, 0)
+		elseif name == "param_type" then
+			curr_node["type"] = vim.treesitter.get_node_text(node, 0)
+
+			table.insert(return_nodes, curr_node)
+
+			curr_node = {}
 		end
+	end
 
-		return result
-	end,
-	type_identifier = function(node)
-		local text = get_node_text(node, 0)
-		return { transform(text) }
-	end,
-}
+	return return_nodes
+end
 
-local function get_current_function_node(offset)
-	local winn = vim.api.nvim_get_current_win()
+---@return TSNode|nil
+local function get_current_function_node()
 	local bufn = vim.api.nvim_get_current_buf()
-	local cl = vim.api.nvim_win_get_cursor(winn)
-	local coln = cl[1] - offset
 	local cursor_node = vim.treesitter.get_node({
-			bufnr = bufn,
-			pos = { coln, cl[2] }
-		})
+		bufnr = bufn,
+	})
 
 	local function_node = cursor_node
 
@@ -113,80 +122,52 @@ local function get_current_function_node(offset)
 end
 
 local function get_current_function_name()
-	local func_node = get_current_function_node(0)
+	local func_node = get_current_function_node()
 
 	if not func_node then
 		return nil
 	end
 
-	return get_node_text(func_node:child(1), 0)
+	return vim.treesitter.get_node_text(func_node:child(1), 0)
 end
 
-local function go_result_type()
-	local function_node = get_current_function_node(0)
+local function create_go_return_type_snippet()
+	local function_node = get_current_function_node()
 
 	if not function_node then
-		function_node = get_current_function_node(4)
+		return ls.text_node("Not inside of a function")
 	end
 
-	if not function_node then
-		print "Not inside of a function"
-		return t "Not inside of a function"
-	end
+	local func_return = generate_func_return_from_node(function_node)
 
-	local query = vim.treesitter.query.parse("go",
-			[[
-      [
-        (method_declaration result: (_) @id)
-        (function_declaration result: (_) @id)
-        (func_literal result: (_) @id)
-      ]
-    ]]
-		)
-
-	local result_types
-	for _, node in query:iter_captures(function_node, 0) do
-		if handlers[node:type()] then
-			result_types = handlers[node:type()](node)
-
-			break
-		end
-	end
-
-	if not result_types then
-		print "could not determine result type"
-		return t "could not determine result type"
+	if not func_return then
+		return ls.text_node("Could not determine result type")
 	end
 
 	local result = {}
-	for _, v in ipairs(result_types) do
-		for _, snip in ipairs(transform_text_to_snippet(v)) do
-			table.insert(result, snip)
+
+	for idx, node in ipairs(func_return) do
+		local sn = {}
+
+		for _, snip in ipairs(transform_func_return_type_to_snippet(node)) do
+			table.insert(sn, snip)
+		end
+
+		table.insert(result, ls.snippet_node(idx, sn))
+
+		if idx < #func_return then
+			table.insert(result, ls.text_node(", "))
 		end
 	end
 
-	return result
-end
-
-local go_ret_vals = function()
-	return ls.sn(
-			nil,
-			go_result_type()
-		)
+	return ls.sn(nil, result)
 end
 
 ls.add_snippets(nil, {
 	go = {
-		s("ve", {
-			i(1, "v"), t(", err := "), i(2, "expr"),
-			t({ "", "if err != nil {", "	" }),
-			i(3, "cond"), t({ "", "}" })
-		}),
-		s("ctx", {
-			t("context.Context"),
-		}),
-		s("ret", fmta("return <result>", { result = d(1, go_ret_vals, nil) })),
-		s("efi", fmta([[
+		ls.snippet("ctx", { ls.text_node("context.Context"), }),
+		ls.snippet("ret", fmta("return <result>", { result = ls.dynamic_node(1, create_go_return_type_snippet, nil) })),
+		ls.snippet("efi", fmta([[
 <val>, err := <f>(<args>)
 if err != nil {
 	return <result>
@@ -194,11 +175,11 @@ if err != nil {
 <finish>
 ]],
 			{
-				val = i(1),
-				f = i(2),
-				args = i(3),
-				result = d(4, go_ret_vals),
-				finish = i(0),
+				val = ls.insert_node(1),
+				f = ls.insert_node(2),
+				args = ls.insert_node(3),
+				result = ls.dynamic_node(4, create_go_return_type_snippet),
+				finish = ls.insert_node(0),
 			}
 		)
 		),
@@ -225,58 +206,6 @@ end
 local function format()
 	orgImports(1000)
 	vim.lsp.buf.format()
-end
-
-local function insert_result(result)
-	local curpos = vfn.getcurpos()
-	local goto_l = string.format("goto %d", result["start"] + 1)
-	vim.cmd(goto_l)
-	local inserts = result.code
-	inserts = vim.split(inserts, "\n")
-	local change = string.format("normal! %ds%s", result["end"] - result.start, inserts[1])
-	vim.cmd(change)
-	vim.cmd("startinsert!")
-
-	local curline = curpos[2]
-	for i = 2, #inserts do
-		print("append ", curline, inserts[i])
-		vfn.append(curline, inserts[i])
-		curline = curline + 1
-	end
-
-	vim.cmd("stopinsert!")
-	vim.cmd("write")
-	vfn.setpos(".", curpos)
-	vim.defer_fn(function()
-		format()
-	end, 300)
-end
-
-local function fill(cmd)
-	if cmd ~= "fillstruct" and cmd ~= "fillswitch" then
-		error("cmd not supported ", cmd)
-	end
-
-	local file = vfn.expand("%:p")
-	local line = vfn.line(".")
-	local farg = string.format("-file=%s", file)
-	local larg = string.format("-line=%d", line)
-	local args = { cmd, farg, larg, "2>/dev/null" }
-
-	vfn.jobstart(args, {
-		on_stdout = function(_, str, _)
-			if #str < 2 then
-				return
-			end
-			local json = vfn.json_decode(str)
-			if #json == 0 then
-				vim.notify("reftools " .. cmd .. " finished with no result", vim.lsp.log_levels.DEBUG)
-			end
-
-			local result = json[1]
-			insert_result(result)
-		end,
-	})
 end
 
 local cache = {}
@@ -417,7 +346,6 @@ local function runFuncTests()
 				end
 			}):start()
 		end)
-
 	end
 
 	vim.keymap.set("n", "r", runJob, { buffer = bh.get_buffer(), silent = true })
@@ -447,7 +375,7 @@ local function listTestsInFile()
 		bufnr = bufn,
 	}):root()
 	local query = vim.treesitter.query.parse("go",
-			[[
+		[[
 		[
 			(
 			 (method_declaration
@@ -465,14 +393,14 @@ local function listTestsInFile()
 			)
 		]
     ]]
-		)
+	)
 
 	vim.print(root_node)
 	local func_names = {}
 
 	for id, node, metadata in query:iter_captures(root_node, bufn) do
 		local name = query.captures[id] -- name of the capture in the query
-		local type = node:type() -- type of the captured node
+		local type = node:type()  -- type of the captured node
 
 		vim.print(name)
 		vim.print(type)
@@ -547,7 +475,7 @@ local function generateFileTests()
 		table.insert(gotest_args, _G.localconfig.gotests_template_dir)
 	end
 
-	local file = vfn.expand("%:p")
+	local file = vim.fn.expand("%:p")
 
 	table.insert(gotest_args, file)
 
@@ -586,7 +514,7 @@ local function generateFuncTests()
 		table.insert(gotest_args, _G.localconfig.gotests_template_dir)
 	end
 
-	local file = vfn.expand("%:p")
+	local file = vim.fn.expand("%:p")
 
 	table.insert(gotest_args, file)
 
@@ -609,8 +537,6 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	callback = format,
 	pattern = { "*.go" }
 })
-
-vim.keymap.set('n', '<leader>gfs', function() fill('fillstruct') end)
 
 -- Test keymaps
 vim.keymap.set('n', '<leader>tt', runTests)

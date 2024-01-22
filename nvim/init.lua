@@ -13,9 +13,7 @@ vim.g.noerrorbells = true
 vim.g.novisualbell = true
 vim.o.cmdheight = 1
 vim.o.cursorline = true
-vim.w.signcolumn = "yes"
 vim.g.signcolumn = "yes"
-vim.b.signcolumn = "yes"
 vim.opt.signcolumn = "yes"
 
 vim.o.splitright = true
@@ -200,6 +198,7 @@ local plugins = {
 	-- Snippets
 	{
 		"L3MON4D3/LuaSnip",
+		version = "v2.*",
 		config = function()
 			local ls = require("luasnip")
 
@@ -312,6 +311,24 @@ local plugins = {
 			})
 		end
 	},
+	{
+		"jbyuki/one-small-step-for-vimkind",
+		config = function()
+			local dap = require("dap")
+			dap.configurations.lua = {
+				{
+					type = 'nlua',
+					request = 'attach',
+					name = "Attach to running Neovim instance",
+				}
+			}
+
+			dap.adapters.nlua = function(callback, config)
+				callback({ type = 'server', host = config.host or "127.0.0.1", port = config.port or 8086 })
+			end
+		end,
+	},
+	{ "folke/neodev.nvim", opts = {} }
 }
 
 require("lazy").setup(plugins,
@@ -383,4 +400,7 @@ vim.keymap.set('n', '<leader>dtf', function() require('dap-go').debug_test() end
 vim.keymap.set('n', '<leader>dtr', function() require('dap-go').debug_last_test() end, silent)
 vim.keymap.set('n', '<leader>duo', function()
 	require('dapui').open()
+end, silent)
+vim.keymap.set('n', '<leader>duc', function()
+	require('dapui').close()
 end, silent)
