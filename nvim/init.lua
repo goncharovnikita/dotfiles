@@ -78,9 +78,7 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
 local rtp_paths = {}
 
-if _G.localconfig and _G.localconfig.rtp_paths then
-	rtp_paths = _G.localconfig.rtp_paths
-end
+if _G.localconfig and _G.localconfig.rtp_paths then rtp_paths = _G.localconfig.rtp_paths end
 
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -144,9 +142,7 @@ local plugins = {
 	"tpope/vim-surround",
 	{
 		"folke/tokyonight.nvim",
-		config = function()
-			vim.cmd.colorscheme("tokyonight-moon")
-		end,
+		config = function() vim.cmd.colorscheme("tokyonight-moon") end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -193,7 +189,25 @@ local plugins = {
 			},
 		},
 		config = function()
-			require("config.telescope")
+			local telescope = require("telescope")
+
+			telescope.setup({
+				extensions = {
+					fzf = {
+						fuzzy = true,
+						override_generic_sorter = true,
+						override_file_sorter = true,
+						case_mode = "smart_case",
+					},
+				},
+				pickers = {
+					find_files = {
+						find_command = { "fd", "--type", "f", "-H" },
+					},
+				},
+			})
+
+			telescope.load_extension("fzf")
 		end,
 		lazy = true,
 	},
@@ -206,9 +220,7 @@ local plugins = {
 			local ls = require("luasnip")
 
 			vim.keymap.set("i", "<c-k>", function()
-				if ls.expand_or_jumpable() then
-					ls.expand_or_jump()
-				end
+				if ls.expand_or_jumpable() then ls.expand_or_jump() end
 			end, { silent = true })
 		end,
 		ft = snippets_langs,
@@ -227,7 +239,76 @@ local plugins = {
 			"saadparwaiz1/cmp_luasnip",
 		},
 		config = function()
-			require("config.cmp")
+			local cmp = require("cmp")
+
+			cmp.setup({
+				snippet = {
+					expand = function(args) require("luasnip").lsp_expand(args.body) end,
+				},
+				mapping = {
+					["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+					["<C-n>"] = function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						else
+							fallback()
+						end
+					end,
+					["<C-p>"] = function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						else
+							fallback()
+						end
+					end,
+					["<C-k>"] = function(fallback)
+						if cmp.visible() then
+							cmp.confirm({ select = true })
+						else
+							fallback()
+						end
+					end,
+				},
+				sources = cmp.config.sources({
+					{ name = "luasnip" },
+					{ name = "nvim_lsp" },
+					{ name = "nvim_lsp_signature_help" },
+				}, {
+					{ name = "buffer" },
+				}),
+				performance = {
+					debounce = 200,
+					throttle = 200,
+				},
+			})
+
+			cmp.setup.filetype("gitcommit", {
+				sources = cmp.config.sources({
+					{ name = "cmp_git" },
+				}, {
+					{ name = "buffer" },
+				}),
+			})
+
+			cmp.setup.cmdline("/", {
+				sources = {
+					{ name = "buffer", max_item_count = 3 },
+				},
+			})
+
+			cmp.setup.cmdline(":", {
+				sources = cmp.config.sources({
+					{ name = "path", max_item_count = 3 },
+				}, {
+					{
+						name = "cmdline",
+						max_item_count = 3,
+					},
+				}),
+				completion = {
+					keyword_length = 3,
+				},
+			})
 		end,
 	},
 
@@ -235,7 +316,122 @@ local plugins = {
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
-			require("config.lsp")
+			local cfg = _G.localconfig and _G.localconfig.lsp_config or {}
+			local nvim_lsp = require("lspconfig")
+			local runtime_path = vim.split(package.path, ";")
+
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+			local lsp_on_attach = function(_, bufnr)
+				local opts = { noremap = true, silent = true, buffer = bufnr }
+				local function buf_set_keymap(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
+
+				buf_set_keymap("n", "gh", "<cmd>Lspsaga lsp_finder<CR>")
+				buf_set_keymap("n", "gD", vim.lsp.buf.declaration)
+				buf_set_keymap("n", "gd", "<cmd>Lspsaga goto_definition<CR>")
+				buf_set_keymap("n", "gp", vim.lsp.buf.definition)
+				buf_set_keymap("n", "<leader>gt", "<cmd>Lspsaga peek_type_definition<CR>")
+				buf_set_keymap("n", "<leader>sw", "<cmd>Lspsaga show_workspace_diagnostics<CR>")
+				buf_set_keymap("n", "K", "<cmd>Lspsaga hover_doc<CR>")
+				buf_set_keymap("n", "<C-k>", "<cmd>Lspsaga hover_doc<CR>")
+				buf_set_keymap("n", "gi", vim.lsp.buf.implementation)
+				buf_set_keymap("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>")
+				buf_set_keymap("n", "]d", "<cmd>Lspsaga diagnostic_jump_next<CR>")
+				buf_set_keymap("n", "<leader>o", "<cmd>Lspsaga outline<CR>")
+				buf_set_keymap("n", "<leader>rr", vim.lsp.buf.rename)
+				buf_set_keymap("n", "<leader>br", "<cmd>Lspsaga rename<CR>")
+				buf_set_keymap("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>")
+				buf_set_keymap("n", "<leader>ci", "<cmd>Lspsaga incoming_calls<CR>")
+				buf_set_keymap("n", "<leader>co", "<cmd>Lspsaga outgoing_calls<CR>")
+				buf_set_keymap("n", "<leader>ad", "<cmd>Lspsaga term_toggle<CR>")
+				buf_set_keymap("n", "<leader>lrr", function() vim.cmd("LspRestart") end)
+				buf_set_keymap("n", "<leader>bff", function() vim.lsp.buf.format({ async = false }) end)
+			end
+
+			local lsp_flags = {
+				debounce_text_changes = 500,
+			}
+
+			nvim_lsp.pylsp.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
+
+			nvim_lsp.gopls.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+				settings = {
+					gopls = cfg.gopls_settings,
+				},
+			})
+
+			nvim_lsp.yamlls.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
+
+			nvim_lsp.jsonls.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
+
+			nvim_lsp.sqlls.setup({
+				on_attach = lsp_on_attach,
+				capabilities = capabilities,
+				flags = lsp_flags,
+			})
+
+			table.insert(runtime_path, "lua/?.lua")
+			table.insert(runtime_path, "lua/?/init.lua")
+
+			nvim_lsp.lua_ls.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+				settings = {
+					Lua = {
+						runtime = {
+							version = "LuaJIT",
+							path = runtime_path,
+						},
+						diagnostics = {
+							globals = { "vim" },
+						},
+						workspace = {
+							library = vim.api.nvim_get_runtime_file("", true),
+							checkThirdParty = false,
+						},
+						telemetry = {
+							enable = false,
+						},
+					},
+				},
+			})
+
+			nvim_lsp.hls.setup({})
+
+			nvim_lsp.clangd.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
+
+			nvim_lsp.bashls.setup({
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
+
+			nvim_lsp.elixirls.setup({
+				cmd = { vim.fn.expand("~/self/elixir-ls/release/language_server.sh") },
+				on_attach = lsp_on_attach,
+				flags = lsp_flags,
+				capabilities = capabilities,
+			})
 		end,
 		ft = lsp_langs,
 	},
@@ -258,9 +454,7 @@ local plugins = {
 	{
 		"j-hui/fidget.nvim",
 		branch = "legacy",
-		config = function()
-			require("fidget").setup({})
-		end,
+		config = function() require("fidget").setup({}) end,
 	},
 
 	-- File explorer
@@ -286,9 +480,7 @@ local plugins = {
 	{ "mfussenegger/nvim-dap" },
 	{
 		"rcarriga/nvim-dap-ui",
-		config = function()
-			require("dapui").setup()
-		end,
+		config = function() require("dapui").setup() end,
 	},
 	{
 		"Weissle/persistent-breakpoints.nvim",
@@ -326,9 +518,7 @@ local plugins = {
 				},
 			}
 
-			dap.adapters.nlua = function(callback, config)
-				callback({ type = "server", host = config.host or "127.0.0.1", port = config.port or 8086 })
-			end
+			dap.adapters.nlua = function(callback) callback({ type = "server", host = "127.0.0.1", port = 8086 }) end
 		end,
 	},
 	{ "folke/neodev.nvim", opts = {} },
@@ -347,9 +537,7 @@ require("lazy").setup(plugins, {
 })
 
 local function telescope(method)
-	return function()
-		require("telescope.builtin")[method]()
-	end
+	return function() require("telescope.builtin")[method]() end
 end
 
 -- Telescope
@@ -375,33 +563,15 @@ vim.keymap.set("n", "<leader>nn", "<cmd>Neotree toggle<CR>", silent)
 vim.keymap.set("n", "<leader>nf", "<cmd>Neotree reveal<CR>", silent)
 
 -- DAP
-vim.keymap.set("n", "<leader>db", function()
-	require("persistent-breakpoints.api").toggle_breakpoint()
-end, silent)
-vim.keymap.set("n", "<leader>dsi", function()
-	require("dap").step_into()
-end, silent)
-vim.keymap.set("n", "<leader>dso", function()
-	require("dap").step_out()
-end, silent)
-vim.keymap.set("n", "<leader>dsn", function()
-	require("dap").step_over()
-end, silent)
-vim.keymap.set("n", "<leader>dsc", function()
-	require("dap").continue()
-end, silent)
-vim.keymap.set("n", "<leader>dsq", function()
-	require("dap").terminate()
-end, silent)
-vim.keymap.set("n", "<leader>dr", function()
-	require("dap").repl.open()
-end, silent)
-vim.keymap.set({ "n", "v" }, "<leader>duh", function()
-	require("dap.ui.widgets").hover()
-end, silent)
-vim.keymap.set({ "n", "v" }, "<leader>dup", function()
-	require("dap.ui.widgets").preview()
-end, silent)
+vim.keymap.set("n", "<leader>db", function() require("persistent-breakpoints.api").toggle_breakpoint() end, silent)
+vim.keymap.set("n", "<leader>dsi", function() require("dap").step_into() end, silent)
+vim.keymap.set("n", "<leader>dso", function() require("dap").step_out() end, silent)
+vim.keymap.set("n", "<leader>dsn", function() require("dap").step_over() end, silent)
+vim.keymap.set("n", "<leader>dsc", function() require("dap").continue() end, silent)
+vim.keymap.set("n", "<leader>dsq", function() require("dap").terminate() end, silent)
+vim.keymap.set("n", "<leader>dr", function() require("dap").repl.open() end, silent)
+vim.keymap.set({ "n", "v" }, "<leader>duh", function() require("dap.ui.widgets").hover() end, silent)
+vim.keymap.set({ "n", "v" }, "<leader>dup", function() require("dap.ui.widgets").preview() end, silent)
 vim.keymap.set("n", "<leader>duf", function()
 	local widgets = require("dap.ui.widgets")
 	widgets.centered_float(widgets.frames)
@@ -410,15 +580,7 @@ vim.keymap.set("n", "<leader>dus", function()
 	local widgets = require("dap.ui.widgets")
 	widgets.centered_float(widgets.scopes)
 end, silent)
-vim.keymap.set("n", "<leader>dtf", function()
-	require("dap-go").debug_test()
-end, silent)
-vim.keymap.set("n", "<leader>dtr", function()
-	require("dap-go").debug_last_test()
-end, silent)
-vim.keymap.set("n", "<leader>duo", function()
-	require("dapui").open()
-end, silent)
-vim.keymap.set("n", "<leader>duc", function()
-	require("dapui").close()
-end, silent)
+vim.keymap.set("n", "<leader>dtf", function() require("dap-go").debug_test() end, silent)
+vim.keymap.set("n", "<leader>dtr", function() require("dap-go").debug_last_test() end, silent)
+vim.keymap.set("n", "<leader>duo", function() require("dapui").open() end, silent)
+vim.keymap.set("n", "<leader>duc", function() require("dapui").close() end, silent)

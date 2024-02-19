@@ -25,6 +25,4 @@ ls.add_snippets(nil, {
 	key = "lua-config",
 })
 
-vim.keymap.set("n", "<leader>ds", function()
-	require("osv").launch({ port = 8086 })
-end, { silent = false })
+vim.keymap.set("n", "<leader>ds", function() require("osv").launch({ port = 8086 }) end, { silent = false })

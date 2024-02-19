@@ -11,13 +11,9 @@ local function_node_types = {
 
 ---@param node FuncReturnType
 local function transform_func_return_type_to_snippet(node)
-	if node.type == "error" then
-		return fmta('fmt.Errorf("<text>: %w", err)', { text = ls.insert_node(1, "error") })
-	end
+	if node.type == "error" then return fmta('fmt.Errorf("<text>: %w", err)', { text = ls.insert_node(1, "error") }) end
 
-	if node.name then
-		return { ls.insert_node(1, node.name) }
-	end
+	if node.name then return { ls.insert_node(1, node.name) } end
 
 	return { ls.insert_node(1, "") }
 end
@@ -112,9 +108,7 @@ local function get_current_function_node()
 	local function_node = cursor_node
 
 	while function_node do
-		if function_node_types[function_node:type()] then
-			break
-		end
+		if function_node_types[function_node:type()] then break end
 
 		function_node = function_node:parent()
 	end
@@ -125,9 +119,7 @@ end
 local function get_current_function_name()
 	local func_node = get_current_function_node()
 
-	if not func_node then
-		return nil
-	end
+	if not func_node then return nil end
 
 	return vim.treesitter.get_node_text(func_node:child(1), 0)
 end
@@ -135,15 +127,11 @@ end
 local function create_go_return_type_snippet()
 	local function_node = get_current_function_node()
 
-	if not function_node then
-		return ls.text_node("Not inside of a function")
-	end
+	if not function_node then return ls.text_node("Not inside of a function") end
 
 	local func_return = generate_func_return_from_node(function_node)
 
-	if not func_return then
-		return ls.text_node("Could not determine result type")
-	end
+	if not func_return then return ls.text_node("Could not determine result type") end
 
 	local result = {}
 
@@ -156,9 +144,7 @@ local function create_go_return_type_snippet()
 
 		table.insert(result, ls.snippet_node(idx, sn))
 
-		if idx < #func_return then
-			table.insert(result, ls.text_node(", "))
-		end
+		if idx < #func_return then table.insert(result, ls.text_node(", ")) end
 	end
 
 	return ls.sn(nil, result)
@@ -220,9 +206,7 @@ local function get_test_result_buffer()
 
 	local cached = cache[cache_key]
 
-	if cached then
-		return cached
-	end
+	if cached then return cached end
 
 	local buf = vim.api.nvim_create_buf(false, true)
 	local bh = buf_util.create_buffer_handler(buf)
@@ -235,9 +219,7 @@ end
 local function is_win_visible(target_win)
 	local active_wins = vim.api.nvim_tabpage_list_wins(0)
 	for _, win in pairs(active_wins) do
-		if win == target_win then
-			return true
-		end
+		if win == target_win then return true end
 	end
 
 	return false
@@ -249,13 +231,9 @@ local function get_test_result_win()
 	local cached = cache[cache_key]
 
 	if cached then
-		if is_win_visible(cached) then
-			return cached
-		end
+		if is_win_visible(cached) then return cached end
 
-		if vim.api.nvim_win_is_valid(cached) then
-			vim.api.nvim_win_close(cached, true)
-		end
+		if vim.api.nvim_win_is_valid(cached) then vim.api.nvim_win_close(cached, true) end
 	end
 
 	vim.cmd("vsplit")
@@ -293,9 +271,7 @@ local function prepare_test_buf_and_win(title_text)
 
 	bh.attach_to_win(win)
 
-	if title_text then
-		bh.write(title_text)
-	end
+	if title_text then bh.write(title_text) end
 
 	vim.api.nvim_set_current_win(current_win)
 
@@ -311,12 +287,8 @@ local function runTests()
 	Job:new({
 		command = "go",
 		args = { "test", "-failfast", package },
-		on_stdout = function(err, text)
-			on_result(err, text)
-		end,
-		on_stderr = function(err, text)
-			on_result(err, text)
-		end,
+		on_stdout = function(err, text) on_result(err, text) end,
+		on_stderr = function(err, text) on_result(err, text) end,
 	}):start()
 end
 
@@ -341,12 +313,8 @@ local function runFuncTests()
 			Job:new({
 				command = "go",
 				args = { "test", "-run", func_name, "-count=1", file_name },
-				on_stdout = function(err, text)
-					on_result(err, text)
-				end,
-				on_stderr = function(err, text)
-					on_result(err, text)
-				end,
+				on_stdout = function(err, text) on_result(err, text) end,
+				on_stderr = function(err, text) on_result(err, text) end,
 			}):start()
 		end)
 	end
@@ -356,9 +324,7 @@ local function runFuncTests()
 	runJob()
 end
 
-local function getTestResults()
-	prepare_test_buf_and_win()
-end
+local function getTestResults() prepare_test_buf_and_win() end
 
 local function cleanTestResults()
 	local bh = get_test_result_buffer()
@@ -426,16 +392,12 @@ local function runTestsOnSaveForFile()
 	local fname = vim.fn.expand("%")
 	local augroup_name = "go_auto_tests_" .. fname
 
-	if test_augroups[augroup_name] then
-		return
-	end
+	if test_augroups[augroup_name] then return end
 
 	local group = vim.api.nvim_create_augroup(augroup_name, { clear = true })
 	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 		group = group,
-		callback = function()
-			runTests()
-		end,
+		callback = function() runTests() end,
 		pattern = { fname },
 	})
 
