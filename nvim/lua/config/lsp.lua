@@ -111,3 +111,10 @@ nvim_lsp.bashls.setup({
 	flags = lsp_flags,
 	capabilities = capabilities,
 })
+
+nvim_lsp.elixirls.setup({
+	cmd = { vim.fn.expand("~/self/elixir-ls/release/language_server.sh") },
+	on_attach = lsp_on_attach,
+	flags = lsp_flags,
+	capabilities = capabilities,
+})

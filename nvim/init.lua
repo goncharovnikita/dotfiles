@@ -117,6 +117,7 @@ local treesitter_langs = {
 	"cpp",
 	"c",
 	"kdl",
+	"elixir",
 }
 
 local lsp_langs = {
@@ -130,6 +131,7 @@ local lsp_langs = {
 	"java",
 	"cpp",
 	"c",
+	"elixir",
 }
 
 local snippets_langs = {
@@ -149,6 +151,7 @@ local plugins = {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		as = "treesitter",
+		version = "v0.9.1",
 		dependencies = {
 			'nvim-treesitter/nvim-treesitter-textobjects',
 		},
