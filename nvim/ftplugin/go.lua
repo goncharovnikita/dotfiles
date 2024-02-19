@@ -1,7 +1,7 @@
 local ls = require("luasnip")
 local fmta = require("luasnip.extras.fmt").fmta
-local buf_util = require('util.buffer').new()
-local Job = require('plenary.job')
+local buf_util = require("util.buffer").new()
+local Job = require("plenary.job")
 
 local function_node_types = {
 	function_declaration = true,
@@ -32,7 +32,8 @@ end
 local function generate_func_return_from_node(func_node)
 	local node_start, _, node_stop, _ = func_node:range()
 
-	local query = vim.treesitter.query.parse("go",
+	local query = vim.treesitter.query.parse(
+		"go",
 		[[
 	[
 		(function_declaration name: (_)
@@ -165,27 +166,30 @@ end
 
 ls.add_snippets(nil, {
 	go = {
-		ls.snippet("ctx", { ls.text_node("context.Context"), }),
+		ls.snippet("ctx", { ls.text_node("context.Context") }),
 		ls.snippet("ret", fmta("return <result>", { result = ls.dynamic_node(1, create_go_return_type_snippet, nil) })),
-		ls.snippet("efi", fmta([[
+		ls.snippet(
+			"efi",
+			fmta(
+				[[
 <val>, err := <f>(<args>)
 if err != nil {
 	return <result>
 }
 <finish>
 ]],
-			{
-				val = ls.insert_node(1),
-				f = ls.insert_node(2),
-				args = ls.insert_node(3),
-				result = ls.dynamic_node(4, create_go_return_type_snippet),
-				finish = ls.insert_node(0),
-			}
-		)
+				{
+					val = ls.insert_node(1),
+					f = ls.insert_node(2),
+					args = ls.insert_node(3),
+					result = ls.dynamic_node(4, create_go_return_type_snippet),
+					finish = ls.insert_node(0),
+				}
+			)
 		),
 	},
 }, {
-	key = "go-config"
+	key = "go-config",
 })
 
 local function orgImports(wait_ms)
@@ -210,7 +214,6 @@ end
 
 local cache = {}
 local test_augroups = {}
-
 
 local function get_test_result_buffer()
 	local cache_key = "test_result_buffer"
@@ -255,7 +258,7 @@ local function get_test_result_win()
 		end
 	end
 
-	vim.cmd('vsplit')
+	vim.cmd("vsplit")
 	local win = vim.api.nvim_get_current_win()
 
 	cache[cache_key] = win
@@ -306,20 +309,20 @@ local function runTests()
 	local on_result = make_job_result_handler()
 
 	Job:new({
-		command = 'go',
-		args = { 'test', '-failfast', package },
+		command = "go",
+		args = { "test", "-failfast", package },
 		on_stdout = function(err, text)
 			on_result(err, text)
 		end,
 		on_stderr = function(err, text)
 			on_result(err, text)
-		end
+		end,
 	}):start()
 end
 
 local function runFuncTests()
 	local func_name = get_current_function_name()
-	local file_name = vim.fn.expand('%:p:h')
+	local file_name = vim.fn.expand("%:p:h")
 
 	if not func_name then
 		print("could not find current func name")
@@ -336,14 +339,14 @@ local function runFuncTests()
 			bh.write(templateText)
 
 			Job:new({
-				command = 'go',
-				args = { 'test', '-run', func_name, '-count=1', file_name },
+				command = "go",
+				args = { "test", "-run", func_name, "-count=1", file_name },
 				on_stdout = function(err, text)
 					on_result(err, text)
 				end,
 				on_stderr = function(err, text)
 					on_result(err, text)
-				end
+				end,
 			}):start()
 		end)
 	end
@@ -371,10 +374,13 @@ end
 local function listTestsInFile()
 	local win = prepare_test_buf_and_win("File tests:")
 	local bufn = vim.api.nvim_get_current_buf()
-	local root_node = vim.treesitter.get_node({
-		bufnr = bufn,
-	}):root()
-	local query = vim.treesitter.query.parse("go",
+	local root_node = vim.treesitter
+		.get_node({
+			bufnr = bufn,
+		})
+		:root()
+	local query = vim.treesitter.query.parse(
+		"go",
 		[[
 		[
 			(
@@ -400,7 +406,7 @@ local function listTestsInFile()
 
 	for id, node, metadata in query:iter_captures(root_node, bufn) do
 		local name = query.captures[id] -- name of the capture in the query
-		local type = node:type()  -- type of the captured node
+		local type = node:type() -- type of the captured node
 
 		vim.print(name)
 		vim.print(type)
@@ -430,7 +436,7 @@ local function runTestsOnSaveForFile()
 		callback = function()
 			runTests()
 		end,
-		pattern = { fname }
+		pattern = { fname },
 	})
 
 	test_augroups[augroup_name] = group
@@ -464,7 +470,8 @@ local function generateFileTests()
 	end
 
 	local gotest_args = {
-		"-w", "-all",
+		"-w",
+		"-all",
 	}
 
 	if _G.localconfig and _G.localconfig.gotests_template_dir then
@@ -480,7 +487,7 @@ local function generateFileTests()
 	table.insert(gotest_args, file)
 
 	Job:new({
-		command = 'gotests',
+		command = "gotests",
 		args = gotest_args,
 		on_stdout = handle_result,
 		on_stderr = handle_result,
@@ -503,7 +510,9 @@ local function generateFuncTests()
 	end
 
 	local gotest_args = {
-		"-w", "-only", func_name,
+		"-w",
+		"-only",
+		func_name,
 	}
 
 	if _G.localconfig and _G.localconfig.gotests_template_dir then
@@ -519,7 +528,7 @@ local function generateFuncTests()
 	table.insert(gotest_args, file)
 
 	Job:new({
-		command = 'gotests',
+		command = "gotests",
 		args = gotest_args,
 		on_stdout = handle_result,
 		on_stderr = handle_result,
@@ -535,20 +544,20 @@ vim.api.nvim_create_augroup("goformat", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	group = "goformat",
 	callback = format,
-	pattern = { "*.go" }
+	pattern = { "*.go" },
 })
 
 -- Test keymaps
-vim.keymap.set('n', '<leader>tt', runTests)
-vim.keymap.set('n', '<leader>tf', runFuncTests)
-vim.keymap.set('n', '<leader>tr', getTestResults)
-vim.keymap.set('n', '<leader>tc', cleanTestResults)
-vim.keymap.set('n', '<leader>to', closeTestResultsWindow)
-vim.keymap.set('n', '<leader>tar', runTestsOnSaveForFile)
-vim.keymap.set('n', '<leader>tao', clearTestAugroupForFile)
-vim.keymap.set('n', '<leader>tac', clearTestAugroups)
+vim.keymap.set("n", "<leader>tt", runTests)
+vim.keymap.set("n", "<leader>tf", runFuncTests)
+vim.keymap.set("n", "<leader>tr", getTestResults)
+vim.keymap.set("n", "<leader>tc", cleanTestResults)
+vim.keymap.set("n", "<leader>to", closeTestResultsWindow)
+vim.keymap.set("n", "<leader>tar", runTestsOnSaveForFile)
+vim.keymap.set("n", "<leader>tao", clearTestAugroupForFile)
+vim.keymap.set("n", "<leader>tac", clearTestAugroups)
 
-vim.keymap.set('n', '<leader>lf', listTestsInFile)
+vim.keymap.set("n", "<leader>lf", listTestsInFile)
 
-vim.keymap.set('n', '<leader>gtf', generateFuncTests)
-vim.keymap.set('n', '<leader>gtt', generateFileTests)
+vim.keymap.set("n", "<leader>gtf", generateFuncTests)
+vim.keymap.set("n", "<leader>gtt", generateFileTests)

@@ -1,7 +1,6 @@
 local function new()
 	local buf_util = {}
 
-
 	function buf_util.create_buffer_handler(buf)
 		local bh = {}
 

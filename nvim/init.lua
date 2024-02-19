@@ -29,28 +29,28 @@ vim.g.maplocalleader = " "
 vim.o.shiftwidth = 4
 vim.o.tabstop = 4
 vim.opt.list = true
-vim.opt.listchars:append "space:⋅"
+vim.opt.listchars:append("space:⋅")
 
 vim.o.termguicolors = true
-vim.o.completeopt = 'menuone,noselect'
+vim.o.completeopt = "menuone,noselect"
 
-vim.keymap.set('n', '<leader><leader>', '/', { silent = true })
-vim.keymap.set('n', '<leader>sr', ':so ~/.config/nvim/init.lua<cr>', { silent = true })
-vim.keymap.set('n', '<leader>ss', ':so %<cr>', { silent = true })
-vim.keymap.set('n', '<leader>fa', ':e #<cr>', { silent = true })
+vim.keymap.set("n", "<leader><leader>", "/", { silent = true })
+vim.keymap.set("n", "<leader>sr", ":so ~/.config/nvim/init.lua<cr>", { silent = true })
+vim.keymap.set("n", "<leader>ss", ":so %<cr>", { silent = true })
+vim.keymap.set("n", "<leader>fa", ":e #<cr>", { silent = true })
 
 vim.g.netrw_winsize = 20
 vim.g.netrw_keepdir = 1
 vim.g.netrw_banner = 0
-vim.g.netrw_localcopydircmd = 'cp -r'
+vim.g.netrw_localcopydircmd = "cp -r"
 vim.g.netrw_browse_split = 4
 vim.g.netrw_altv = 1
 vim.g.netrw_liststyle = 3
 
 local silent = { silent = true }
 
-vim.keymap.set('n', '<leader>nn', [[<cmd>Lexplore<cr>]], silent)
-vim.keymap.set('n', '<leader>nf', [[<cmd>Lexplore %:p:h<cr>]], silent)
+vim.keymap.set("n", "<leader>nn", [[<cmd>Lexplore<cr>]], silent)
+vim.keymap.set("n", "<leader>nf", [[<cmd>Lexplore %:p:h<cr>]], silent)
 
 -- Disable default plugins
 vim.g.loaded_gzip = 1
@@ -145,19 +145,19 @@ local plugins = {
 	{
 		"folke/tokyonight.nvim",
 		config = function()
-			vim.cmd.colorscheme('tokyonight-moon')
-		end
+			vim.cmd.colorscheme("tokyonight-moon")
+		end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter",
 		as = "treesitter",
 		version = "v0.9.1",
 		dependencies = {
-			'nvim-treesitter/nvim-treesitter-textobjects',
+			"nvim-treesitter/nvim-treesitter-textobjects",
 		},
 		ft = treesitter_langs,
 		config = function()
-			require('nvim-treesitter.configs').setup({
+			require("nvim-treesitter.configs").setup({
 				ensure_installed = treesitter_langs,
 				sync_install = false,
 				highlight = {
@@ -169,14 +169,14 @@ local plugins = {
 						enable = true,
 						lookahead = true,
 						keymaps = {
-							['af'] = '@function.outer',
-							['if'] = '@function.inner',
-							['ac'] = '@class.outer',
-							['ic'] = '@class.inner',
-							['ii'] = '@assignment.inner',
+							["af"] = "@function.outer",
+							["if"] = "@function.inner",
+							["ac"] = "@class.outer",
+							["ic"] = "@class.inner",
+							["ii"] = "@assignment.inner",
 						},
 					},
-				}
+				},
 			})
 		end,
 	},
@@ -193,7 +193,7 @@ local plugins = {
 			},
 		},
 		config = function()
-			require('config.telescope')
+			require("config.telescope")
 		end,
 		lazy = true,
 	},
@@ -205,7 +205,7 @@ local plugins = {
 		config = function()
 			local ls = require("luasnip")
 
-			vim.keymap.set('i', '<c-k>', function()
+			vim.keymap.set("i", "<c-k>", function()
 				if ls.expand_or_jumpable() then
 					ls.expand_or_jump()
 				end
@@ -218,16 +218,16 @@ local plugins = {
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
-			'hrsh7th/cmp-buffer',
-			'hrsh7th/cmp-path',
-			'hrsh7th/cmp-cmdline',
+			"hrsh7th/cmp-buffer",
+			"hrsh7th/cmp-path",
+			"hrsh7th/cmp-cmdline",
 			"hrsh7th/cmp-nvim-lua",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-nvim-lsp-signature-help",
 			"saadparwaiz1/cmp_luasnip",
 		},
 		config = function()
-			require('config.cmp')
+			require("config.cmp")
 		end,
 	},
 
@@ -235,7 +235,7 @@ local plugins = {
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
-			require('config.lsp')
+			require("config.lsp")
 		end,
 		ft = lsp_langs,
 	},
@@ -252,15 +252,15 @@ local plugins = {
 		end,
 		dependencies = {
 			{ "nvim-tree/nvim-web-devicons" },
-			{ "nvim-treesitter/nvim-treesitter" }
-		}
+			{ "nvim-treesitter/nvim-treesitter" },
+		},
 	},
 	{
 		"j-hui/fidget.nvim",
 		branch = "legacy",
 		config = function()
-			require "fidget".setup {}
-		end
+			require("fidget").setup({})
+		end,
 	},
 
 	-- File explorer
@@ -276,7 +276,7 @@ local plugins = {
 			vim.g.neo_tree_remove_legacy_commands = 1
 
 			require("neo-tree").setup({})
-		end
+		end,
 	},
 
 	{ "lukas-reineke/indent-blankline.nvim" },
@@ -287,21 +287,21 @@ local plugins = {
 	{
 		"rcarriga/nvim-dap-ui",
 		config = function()
-			require('dapui').setup()
-		end
+			require("dapui").setup()
+		end,
 	},
 	{
 		"Weissle/persistent-breakpoints.nvim",
 		config = function()
-			require('persistent-breakpoints').setup({
-				load_breakpoints_event = { "BufReadPost" }
+			require("persistent-breakpoints").setup({
+				load_breakpoints_event = { "BufReadPost" },
 			})
-		end
+		end,
 	},
 	{
 		"leoluz/nvim-dap-go",
 		config = function()
-			require('dap-go').setup({
+			require("dap-go").setup({
 				dap_configurations = {
 					{
 						-- Must be "go" or it will be ignored by the plugin
@@ -312,7 +312,7 @@ local plugins = {
 					},
 				},
 			})
-		end
+		end,
 	},
 	{
 		"jbyuki/one-small-step-for-vimkind",
@@ -320,90 +320,105 @@ local plugins = {
 			local dap = require("dap")
 			dap.configurations.lua = {
 				{
-					type = 'nlua',
-					request = 'attach',
+					type = "nlua",
+					request = "attach",
 					name = "Attach to running Neovim instance",
-				}
+				},
 			}
 
 			dap.adapters.nlua = function(callback, config)
-				callback({ type = 'server', host = config.host or "127.0.0.1", port = config.port or 8086 })
+				callback({ type = "server", host = config.host or "127.0.0.1", port = config.port or 8086 })
 			end
 		end,
 	},
-	{ "folke/neodev.nvim", opts = {} }
+	{ "folke/neodev.nvim", opts = {} },
 }
 
-require("lazy").setup(plugins,
-	{
-		performance = {
-			rtp = {
-				paths = rtp_paths,
-			},
-			disabled_plugins = {
-				"netrwPlugin",
-				"tutor",
-			},
+require("lazy").setup(plugins, {
+	performance = {
+		rtp = {
+			paths = rtp_paths,
 		},
-	}
-)
-
+		disabled_plugins = {
+			"netrwPlugin",
+			"tutor",
+		},
+	},
+})
 
 local function telescope(method)
 	return function()
-		require('telescope.builtin')[method]()
+		require("telescope.builtin")[method]()
 	end
 end
 
 -- Telescope
-vim.keymap.set('n', '<C-p>', telescope('find_files'), silent)
-vim.keymap.set('n', '<C-f>', telescope('current_buffer_fuzzy_find'), silent)
+vim.keymap.set("n", "<C-p>", telescope("find_files"), silent)
+vim.keymap.set("n", "<C-f>", telescope("current_buffer_fuzzy_find"), silent)
 
-vim.keymap.set('n', '<leader>fb', telescope('buffers'), silent)
-vim.keymap.set('n', '<leader>ff', telescope('live_grep'), silent)
-vim.keymap.set('n', '<leader>fj', telescope('jumplist'), silent)
-vim.keymap.set('n', '<leader>fc', telescope('commands'), silent)
-vim.keymap.set('n', '<leader>fl', telescope('loclist'), silent)
-vim.keymap.set('n', '<leader>fh', telescope('help_tags'), silent)
-vim.keymap.set('n', '<leader>fd', telescope('diagnostics'), silent)
-vim.keymap.set('n', '<leader>fr', telescope('resume'), silent)
+vim.keymap.set("n", "<leader>fb", telescope("buffers"), silent)
+vim.keymap.set("n", "<leader>ff", telescope("live_grep"), silent)
+vim.keymap.set("n", "<leader>fj", telescope("jumplist"), silent)
+vim.keymap.set("n", "<leader>fc", telescope("commands"), silent)
+vim.keymap.set("n", "<leader>fl", telescope("loclist"), silent)
+vim.keymap.set("n", "<leader>fh", telescope("help_tags"), silent)
+vim.keymap.set("n", "<leader>fd", telescope("diagnostics"), silent)
+vim.keymap.set("n", "<leader>fr", telescope("resume"), silent)
 
 -- LSP
-vim.keymap.set('n', '<leader>lfr', telescope('lsp_references'), silent)
-vim.keymap.set('n', '<leader>lfi', telescope('lsp_implementations'), silent)
-vim.keymap.set('n', '<leader>lfo', telescope('lsp_document_symbols'), silent)
+vim.keymap.set("n", "<leader>lfr", telescope("lsp_references"), silent)
+vim.keymap.set("n", "<leader>lfi", telescope("lsp_implementations"), silent)
+vim.keymap.set("n", "<leader>lfo", telescope("lsp_document_symbols"), silent)
 
 -- Neotree
-vim.keymap.set('n', '<leader>nn', "<cmd>Neotree toggle<CR>", silent)
-vim.keymap.set('n', '<leader>nf', "<cmd>Neotree reveal<CR>", silent)
+vim.keymap.set("n", "<leader>nn", "<cmd>Neotree toggle<CR>", silent)
+vim.keymap.set("n", "<leader>nf", "<cmd>Neotree reveal<CR>", silent)
 
 -- DAP
-vim.keymap.set('n', '<leader>db', function() require('persistent-breakpoints.api').toggle_breakpoint() end, silent)
-vim.keymap.set('n', '<leader>dsi', function() require('dap').step_into() end, silent)
-vim.keymap.set('n', '<leader>dso', function() require('dap').step_out() end, silent)
-vim.keymap.set('n', '<leader>dsn', function() require('dap').step_over() end, silent)
-vim.keymap.set('n', '<leader>dsc', function() require('dap').continue() end, silent)
-vim.keymap.set('n', '<leader>dsq', function() require('dap').terminate() end, silent)
-vim.keymap.set('n', '<leader>dr', function() require('dap').repl.open() end, silent)
-vim.keymap.set({ 'n', 'v' }, '<leader>duh', function()
-	require('dap.ui.widgets').hover()
+vim.keymap.set("n", "<leader>db", function()
+	require("persistent-breakpoints.api").toggle_breakpoint()
 end, silent)
-vim.keymap.set({ 'n', 'v' }, '<leader>dup', function()
-	require('dap.ui.widgets').preview()
+vim.keymap.set("n", "<leader>dsi", function()
+	require("dap").step_into()
 end, silent)
-vim.keymap.set('n', '<leader>duf', function()
-	local widgets = require('dap.ui.widgets')
+vim.keymap.set("n", "<leader>dso", function()
+	require("dap").step_out()
+end, silent)
+vim.keymap.set("n", "<leader>dsn", function()
+	require("dap").step_over()
+end, silent)
+vim.keymap.set("n", "<leader>dsc", function()
+	require("dap").continue()
+end, silent)
+vim.keymap.set("n", "<leader>dsq", function()
+	require("dap").terminate()
+end, silent)
+vim.keymap.set("n", "<leader>dr", function()
+	require("dap").repl.open()
+end, silent)
+vim.keymap.set({ "n", "v" }, "<leader>duh", function()
+	require("dap.ui.widgets").hover()
+end, silent)
+vim.keymap.set({ "n", "v" }, "<leader>dup", function()
+	require("dap.ui.widgets").preview()
+end, silent)
+vim.keymap.set("n", "<leader>duf", function()
+	local widgets = require("dap.ui.widgets")
 	widgets.centered_float(widgets.frames)
 end, silent)
-vim.keymap.set('n', '<leader>dus', function()
-	local widgets = require('dap.ui.widgets')
+vim.keymap.set("n", "<leader>dus", function()
+	local widgets = require("dap.ui.widgets")
 	widgets.centered_float(widgets.scopes)
 end, silent)
-vim.keymap.set('n', '<leader>dtf', function() require('dap-go').debug_test() end, silent)
-vim.keymap.set('n', '<leader>dtr', function() require('dap-go').debug_last_test() end, silent)
-vim.keymap.set('n', '<leader>duo', function()
-	require('dapui').open()
+vim.keymap.set("n", "<leader>dtf", function()
+	require("dap-go").debug_test()
 end, silent)
-vim.keymap.set('n', '<leader>duc', function()
-	require('dapui').close()
+vim.keymap.set("n", "<leader>dtr", function()
+	require("dap-go").debug_last_test()
+end, silent)
+vim.keymap.set("n", "<leader>duo", function()
+	require("dapui").open()
+end, silent)
+vim.keymap.set("n", "<leader>duc", function()
+	require("dapui").close()
 end, silent)

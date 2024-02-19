@@ -8,14 +8,14 @@ cmp.setup({
 	},
 	mapping = {
 		["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
-		['<C-n>'] = function(fallback)
+		["<C-n>"] = function(fallback)
 			if cmp.visible() then
 				cmp.select_next_item()
 			else
 				fallback()
 			end
 		end,
-		['<C-p>'] = function(fallback)
+		["<C-p>"] = function(fallback)
 			if cmp.visible() then
 				cmp.select_prev_item()
 			else
@@ -28,10 +28,10 @@ cmp.setup({
 			else
 				fallback()
 			end
-		end
+		end,
 	},
 	sources = cmp.config.sources({
-		{ name = 'luasnip' },
+		{ name = "luasnip" },
 		{ name = "nvim_lsp" },
 		{ name = "nvim_lsp_signature_help" },
 	}, {
@@ -63,7 +63,7 @@ cmp.setup.cmdline(":", {
 	}, {
 		{
 			name = "cmdline",
-			max_item_count = 3
+			max_item_count = 3,
 		},
 	}),
 	completion = {
