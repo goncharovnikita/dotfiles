@@ -459,17 +459,49 @@ local plugins = {
 
 	-- File explorer
 	{
-		"nvim-neo-tree/neo-tree.nvim",
-		branch = "v3.x",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-tree/nvim-web-devicons",
-			"MunifTanjim/nui.nvim",
-		},
+		'stevearc/oil.nvim',
+		opts = {},
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			vim.g.neo_tree_remove_legacy_commands = 1
+			local oil = require("oil")
 
-			require("neo-tree").setup({})
+			oil.setup({
+				keymaps = {
+					["g?"] = "actions.show_help",
+					["<CR>"] = "actions.select",
+					["<C-s>"] = "actions.select_vsplit",
+					["<C-h>"] = "actions.select_split",
+					["<C-t>"] = "actions.select_tab",
+					-- ["<C-p>"] = "actions.preview",
+					["<C-c>"] = "actions.close",
+					["<C-l>"] = "actions.refresh",
+					["-"] = "actions.parent",
+					["_"] = "actions.open_cwd",
+					["`"] = "actions.cd",
+					["~"] = "actions.tcd",
+					["gs"] = "actions.change_sort",
+					["gx"] = "actions.open_external",
+					["g."] = "actions.toggle_hidden",
+					["g\\"] = "actions.toggle_trash",
+				},
+				use_default_keymaps = false,
+				float = {
+					padding = 16,
+					max_width = 640,
+					max_height = 480,
+					border = "rounded",
+					win_options = {
+						winblend = 20,
+					},
+				},
+			})
+
+			vim.keymap.set("n", "<leader>nn", function()
+				oil.toggle_float()
+			end, silent)
+			vim.keymap.set("n", "<leader>nf", function()
+				oil.toggle_float()
+			end, silent)
 		end,
 	},
 
@@ -557,10 +589,6 @@ vim.keymap.set("n", "<leader>fr", telescope("resume"), silent)
 vim.keymap.set("n", "<leader>lfr", telescope("lsp_references"), silent)
 vim.keymap.set("n", "<leader>lfi", telescope("lsp_implementations"), silent)
 vim.keymap.set("n", "<leader>lfo", telescope("lsp_document_symbols"), silent)
-
--- Neotree
-vim.keymap.set("n", "<leader>nn", "<cmd>Neotree toggle<CR>", silent)
-vim.keymap.set("n", "<leader>nf", "<cmd>Neotree reveal<CR>", silent)
 
 -- DAP
 vim.keymap.set("n", "<leader>db", function() require("persistent-breakpoints.api").toggle_breakpoint() end, silent)
