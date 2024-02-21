@@ -116,6 +116,7 @@ local treesitter_langs = {
 	"c",
 	"kdl",
 	"elixir",
+	"typescript",
 }
 
 local lsp_langs = {
@@ -172,8 +173,45 @@ local plugins = {
 							["ii"] = "@assignment.inner",
 						},
 					},
+					swap = {
+						enable = true,
+						swap_next = {
+							["<leader>sn"] = "@parameter.inner",
+						},
+						swap_previous = {
+							["<leader>sp"] = "@parameter.inner",
+						},
+					},
+					move = {
+						enable = true,
+						set_jumps = true,
+						goto_next_start = {
+							["]m"] = "@function.outer",
+							["]]"] = "@class.outer",
+						},
+						goto_previous_start = {
+							["[m"] = "@function.outer",
+							["[["] = "@class.outer",
+						},
+						goto_next_end = {
+							["]M"] = "@function.outer",
+							["]["] = "@class.outer",
+						},
+						goto_next = {
+							["]c"] = "@conditional.outer",
+						},
+						goto_previous = {
+							["[c"] = "@conditional.outer",
+						},
+					},
 				},
 			})
+
+			vim.cmd([[
+				set foldmethod=expr
+				set foldexpr=nvim_treesitter#foldexpr()
+				set nofoldenable
+			]])
 		end,
 	},
 
@@ -459,7 +497,7 @@ local plugins = {
 
 	-- File explorer
 	{
-		'stevearc/oil.nvim',
+		"stevearc/oil.nvim",
 		opts = {},
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
@@ -496,12 +534,8 @@ local plugins = {
 				},
 			})
 
-			vim.keymap.set("n", "<leader>nn", function()
-				oil.toggle_float()
-			end, silent)
-			vim.keymap.set("n", "<leader>nf", function()
-				oil.toggle_float()
-			end, silent)
+			vim.keymap.set("n", "<leader>nn", function() oil.toggle_float() end, silent)
+			vim.keymap.set("n", "<leader>nf", function() oil.toggle_float() end, silent)
 		end,
 	},
 
@@ -554,6 +588,19 @@ local plugins = {
 		end,
 	},
 	{ "folke/neodev.nvim", opts = {} },
+	{ "MunifTanjim/nui.nvim" },
+	{
+		"sotte/presenting.nvim",
+		opts = {
+			separator = {
+				-- markdown = ">>pnextslide",
+			},
+			options = {
+				width = 70,
+			},
+		},
+		cmd = { "Presenting" },
+	},
 }
 
 require("lazy").setup(plugins, {
@@ -612,3 +659,6 @@ vim.keymap.set("n", "<leader>dtf", function() require("dap-go").debug_test() end
 vim.keymap.set("n", "<leader>dtr", function() require("dap-go").debug_last_test() end, silent)
 vim.keymap.set("n", "<leader>duo", function() require("dapui").open() end, silent)
 vim.keymap.set("n", "<leader>duc", function() require("dapui").close() end, silent)
+
+--- Presentation
+vim.keymap.set("n", "<leader>ppp", function() require("presenting").start() end, silent)

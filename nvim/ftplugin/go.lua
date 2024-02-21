@@ -153,6 +153,16 @@ end
 ls.add_snippets(nil, {
 	go = {
 		ls.snippet("ctx", { ls.text_node("context.Context") }),
+		ls.snippet(
+			"gomockctrl",
+			fmta(
+				[[
+ctrl := gomock.NewController(t)
+defer ctrl.Finish()
+]],
+				{}
+			)
+		),
 		ls.snippet("ret", fmta("return <result>", { result = ls.dynamic_node(1, create_go_return_type_snippet, nil) })),
 		ls.snippet(
 			"efi",
