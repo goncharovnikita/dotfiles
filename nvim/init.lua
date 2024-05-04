@@ -170,7 +170,8 @@ local plugins = {
 							["if"] = "@function.inner",
 							["ac"] = "@class.outer",
 							["ic"] = "@class.inner",
-							["ii"] = "@assignment.inner",
+							["ii"] = "@conditional.inner",
+							["ai"] = "@conditional.outer",
 						},
 					},
 					swap = {
@@ -196,12 +197,13 @@ local plugins = {
 						goto_next_end = {
 							["]M"] = "@function.outer",
 							["]["] = "@class.outer",
+							["]I"] = "@conditional.outer",
 						},
 						goto_next = {
-							["]c"] = "@conditional.outer",
+							["]i"] = "@conditional.outer",
 						},
 						goto_previous = {
-							["[c"] = "@conditional.outer",
+							["[i"] = "@conditional.outer",
 						},
 					},
 				},
@@ -544,6 +546,7 @@ local plugins = {
 
 	-- DAP
 	{ "mfussenegger/nvim-dap" },
+	{ "nvim-neotest/nvim-nio" },
 	{
 		"rcarriga/nvim-dap-ui",
 		config = function() require("dapui").setup() end,
