@@ -94,6 +94,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local treesitter_langs = {
+	"vim",
+	"vimdoc",
 	"go",
 	"bash",
 	"comment",
@@ -188,11 +190,11 @@ local plugins = {
 						set_jumps = true,
 						goto_next_start = {
 							["]m"] = "@function.outer",
-							["]]"] = "@class.outer",
+							["]c"] = "@class.outer",
 						},
 						goto_previous_start = {
 							["[m"] = "@function.outer",
-							["[["] = "@class.outer",
+							["[c"] = "@class.outer",
 						},
 						goto_next_end = {
 							["]M"] = "@function.outer",
@@ -366,7 +368,7 @@ local plugins = {
 				local opts = { noremap = true, silent = true, buffer = bufnr }
 				local function buf_set_keymap(mode, lhs, rhs) vim.keymap.set(mode, lhs, rhs, opts) end
 
-				buf_set_keymap("n", "gh", "<cmd>Lspsaga lsp_finder<CR>")
+				buf_set_keymap("n", "gh", "<cmd>Lspsaga finder<CR>")
 				buf_set_keymap("n", "gD", vim.lsp.buf.declaration)
 				buf_set_keymap("n", "gd", "<cmd>Lspsaga goto_definition<CR>")
 				buf_set_keymap("n", "gp", vim.lsp.buf.definition)
@@ -549,6 +551,9 @@ local plugins = {
 	{ "nvim-neotest/nvim-nio" },
 	{
 		"rcarriga/nvim-dap-ui",
+		dependencies = {
+			"nvim-neotest/nvim-nio"
+		},
 		config = function() require("dapui").setup() end,
 	},
 	{
@@ -610,7 +615,7 @@ local plugins = {
 	{
 		"kristijanhusak/vim-dadbod-ui",
 		dependencies = {
-			{ "tpope/vim-dadbod", lazy = true },
+			{ "tpope/vim-dadbod",                     lazy = true },
 			{ "kristijanhusak/vim-dadbod-completion", ft = { "sql", "plsql" }, lazy = true },
 		},
 		cmd = {
@@ -621,6 +626,12 @@ local plugins = {
 		},
 		init = function() vim.g.db_ui_use_nerd_fonts = 1 end,
 	},
+
+	-- D2
+	{ "terrastruct/d2-vim" },
+
+	-- Git conflicts
+	{ 'akinsho/git-conflict.nvim', version = "*", config = true }
 }
 
 require("lazy").setup(plugins, {
