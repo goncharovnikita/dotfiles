@@ -150,6 +150,11 @@ local function create_go_return_type_snippet()
 	return ls.sn(nil, result)
 end
 
+local function uuid()
+	local id, _ = vim.fn.system("uuidgen | tr '[:upper:]' '[:lower:]'"):gsub('\n', '')
+	return id
+end
+
 ls.add_snippets(nil, {
 	go = {
 		ls.snippet("ctx", { ls.text_node("context.Context") }),
@@ -183,6 +188,13 @@ if err != nil {
 				}
 			)
 		),
+		ls.snippet({
+			trig = 'uuid',
+			name = 'UUID',
+			dscr = 'Generate a unique UUID'
+		}, {
+			ls.dynamic_node(1, function() return ls.snippet_node(nil, ls.insert_node(1, uuid())) end)
+		}),
 	},
 }, {
 	key = "go-config",
